@@ -1,0 +1,101 @@
+* {
+	margin: 0;
+	padding: 0;
+}
+
+.mainColor {
+	color: #8360C3;
+}
+/* 火爆游戏 */
+.title1{
+	color: #D9250E;
+}
+/* 飙升榜单 */
+.title2{
+	color: #F49E25;
+}
+/* 经典推荐 */
+.title3{
+	color: #1296DB;
+}
+.flex {
+	display: flex;
+}
+.center{
+	text-align: center;
+}
+.bold {
+	font-weight: bold;
+}
+
+.black {
+	color: #333;
+}
+
+.lightBlack {
+	color: #666;
+}
+
+.grey {
+	color: #999;
+}
+
+.font10 {
+	font-size: 10px;
+}
+
+.font12 {
+	font-size: 12px;
+}
+
+.font13 {
+	font-size: 13px;
+}
+
+.font18 {
+	font-size: 18px;
+}
+
+.margin-t-1 {
+	margin-top: 10px;
+}
+.margin-t-2 {
+	margin-top: 20px;
+}
+.margin-t-05 {
+	margin-top: 15px;
+}
+
+.margin-l-05 {
+	margin-left: 15px;
+}
+.ellipsis-1{
+	word-break: break-all;
+	display: -webkit-box;
+	overflow: hidden;
+	line-height: 1.5;
+	text-overflow: ellipsis;
+	-webkit-box-orient: vertical;
+	-webkit-line-clamp: 1;
+}
+.ellipsis-2 {
+	word-break: break-all;
+	display: -webkit-box;
+	overflow: hidden;
+	line-height: 1.5;
+	text-overflow: ellipsis;
+	-webkit-box-orient: vertical;
+	-webkit-line-clamp: 2;
+}
+
+.installItem {
+	width: 70px;
+	height: 20px;
+	background: linear-gradient(0deg, rgba(58, 209, 227, 1) 0%, rgba(152, 115, 220, 1) 99%);
+	border-radius: 4px;
+	color: #fff;
+	font-size: 15px;
+	text-align: center;
+	line-height: 20px;
+	margin-top: 10px;
+}
