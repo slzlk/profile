@@ -1,0 +1,1893 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8" />
+		<!-- application/json -->
+		<meta name="format-detection" content="telephone=yes" />
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+		<meta http-equiv="Access-Control-Allow-Origin"  content="*">
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<title>流连互娱</title>
+		<script src="js/vue.js" type="text/javascript" charset="utf-8"></script>
+		<script src="js/common.js" type="text/javascript" charset="utf-8"></script>
+		<link rel="stylesheet" type="text/css" href="css/main.css" />
+		<script src="https://cdn.staticfile.org/vue-resource/1.5.1/vue-resource.min.js"></script>
+		<script src="https://g.tbcdn.cn/mtb/lib-flexible/0.3.2/??flexible_css.js,flexible.js"></script>
+		<!-- md5 -->
+		<script src="js/md5.js" type="text/javascript" charset="utf-8"></script>
+		<!-- 获取设备信息 -->
+		<script src="https://cdn.jsdelivr.net/npm/mobile-detect@1.4.4/mobile-detect.min.js"></script>
+		<script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+		
+		
+		<!--  -->
+		
+		<style type="text/css">
+			[v-cloak] {
+				display: none !important;
+			}
+			.toast {
+			            position: fixed;
+			            z-index: 999999999999999999999;
+			            left: 50%;
+			            top:45%;
+			            transition:all .5s;
+			            -webkit-transform: translateX(-50%) translateY(-50%);
+			               -moz-transform: translateX(-50%) translateY(-50%);
+			                -ms-transform: translateX(-50%) translateY(-50%);
+			                 -o-transform: translateX(-50%) translateY(-50%);
+			                    transform: translateX(-50%) translateY(-50%);
+			            text-align: center;
+			            border-radius: 5px;
+			            color:#FFF;
+			            background: rgba(17, 17, 17, 0.7);
+			            height: 45px;
+			            line-height: 45px;
+			            padding: 0 15px;
+			            max-width: 150px;
+			        }
+		</style>
+	</head>
+	<body>
+		<div id="app" v-cloak>
+			<!-- :height="height" -->
+			<!-- http://dntg-liulian.f5yx.com/plat/141/g6_141.html?userId=806705949&appid=101921&time=1577155270&reurl=&extinfo=chn_gid%2A463%7Cchn_uid%2A1%7Cchannel_ext%2AMTE%3D&sid=1&source=49you_hnlg_llh5&sign=0e34cc7f314cb8032dcaa2896dd2d6be -->
+			<!-- ?userId=806705949&appid=101921&time=1577155270&reurl=&extinfo=chn_gid%2A463%7Cchn_uid%2A1%7Cchannel_ext%2AMTE%3D&sid=1&source=49you_hnlg_llh5&sign=0e34cc7f314cb8032dcaa2896dd2d6be -->
+			<iframe :src="url" 	:height="m_h"		allowtransparency="yes" scrolling="no" frameborder="0" width="100%"  style="overflow:hidden;" id="h5-game-iframe"></iframe>
+			<!-- <p class="payBtn" @click="isShowPay = true">支付</p> -->
+		
+			<!-- 显示实名认证按钮 -->
+			<div class="expandImgInfo" @click="isReconiseInfo()" v-if="userInfo.uid">
+				<img :src="expandImg" class=""  >
+			</div>
+			
+			
+			<!-- toast -->
+			<div class="toast" v-show="toastShow">
+				{{toastText}}
+			</div>
+			<!--  遮层-->
+			<div class="maskInfo" v-if="isShowPay  || isPhoneLogin || isPassLogin || isFindPass || isRetPass || isSelectLoginWay || isShow || isShowInfo || isBindPhone || isReconise">
+			</div>
+			<!-- 选择 -->
+			<div class="accountInfo commonMaskPay" v-if="isShowPay">
+				<div class="headerTite">
+					<span>确认付款</span>
+					<img :src="closeImg" class="closeImg" @click="isShowPay = false">
+				</div>
+				<div class="bottomContent ">
+					<div class="bottomContentItem">
+						<p>充值金额</p>
+						<p class="price">￥{{payInfo.money}}</p>
+					</div>
+					<div class="bottomContentItem">
+						<p>购买商品</p>
+						<p>{{payInfo.product_name}}</p>
+					</div>
+					<p class="payWay">请选择支付方式</p>
+					<div class="bottomContentItem paySelectWay" v-for="item of payList" @click="selectActive = item.value">
+						<div class="bottomContentItemSmall">
+							<img :src="item.img" class="wxpayImg">
+							<p>{{item.name}}</p>
+						</div>
+						<img :src="selectImg" class="arrowImg" v-if="selectActive === item.value">
+					</div>
+					<div class="payBtn" @click="payMoneyNow">立即付款</div>
+				</div>
+			</div>
+
+
+			<!-- 登录方式选择 -->
+			<div class="specialMask pboneInfo" v-if="isSelectLoginWay">
+				<div class="loginWayTitle ">
+					<div :class="selectLoginWay === item.value ? 'borderColor' : '' " v-for="item of loginList" @click="selectLoginWay = item.value">
+						{{item.name}}
+					</div>
+				</div>
+				<!-- 账号密码登录 -->
+				<div class="" v-if="selectLoginWay === 'accountLogin'">
+					<div class="bottomContent ">
+						<div class="view-group">
+							<image :src="userImg" mode="" />
+							<div class="phoneInput groupItem">
+								<input placeholder-style="color:#999" type="text" name="myName" v-model="myName" placeholder="账号" />
+							</div>
+						</div>
+						<div class="view-group">
+							<image :src="passImg" mode="" />
+							<div class="groupItem">
+								<input class="codeInput" placeholder-style="color:#999" type="password" name="myPass" v-model="myPass"
+								 placeholder="密码" />
+								<!-- <div class="getcodeAll " ></div> -->
+								<div class="selectColor" @click="isPassLogin = false,isFindPass = true">忘记密码?</div>
+							</div>
+						</div>
+					</div>
+					<div class="bindPhone" @click="userPassLogin()">登录</div>
+					<div class="register selectColor">
+						<div class="" @click="isUserResign = true">
+							快速注册
+						</div>
+						<div class="" @click="freeLogin">
+							游客快速登录
+						</div>
+					</div>
+				</div>
+				<!-- 手机号登录 -->
+				<div class="" v-if="selectLoginWay === 'phoneLogin'">
+					<div class="bottomContent ">
+						<div class="view-group">
+							<image :src="phoneImg" mode="" />
+							<div class="phoneInput groupItem">
+								<input onkeyup="this.value=this.value.replace(/\D/g,'')" onafterpaste="this.value=this.value.replace(/\D/g,'')"
+								 placeholder-style="color:#999" type="text" maxlength="11" name="mobile" v-model="mobile" placeholder="请输入手机号码" />
+							</div>
+						</div>
+						<div class="view-group">
+							<image :src="codeImg" mode="" />
+							<div class="groupItem">
+								<input class="codeInput" maxlength="6" placeholder-style="color:#999" type="text" name="code" v-model="code"
+								 placeholder="请输入验证码" />
+								<div class="getcodeAll selectColor" @click="getCode" :disabled="countdown < 60 && countdown >= 1">
+									{{ countdown < 60 && countdown >= 1 ? `${countdown}秒后可重发` : '获取验证码' }}
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="bindPhone" @click="phoneUserPhone()">手机号登录</div>
+					<div class="register selectColor">
+						<div class="" @click="isUserResign = true">
+							快速注册
+						</div>
+						<div class="" @click="freeLogin">
+							游客快速登录
+						</div>
+					</div>
+				</div>
+
+			</div>
+
+			<!-- 快速注册 -->
+			<div class="resigetInfo commonMask" v-if="isUserResign">
+				<div class="headerTite">
+					<span>快速注册</span>
+					<img :src="closeImg" class="closeImg" @click="isUserResign = false" />
+				</div>
+				<div class="bottomContent ">
+					<div class="view-group">
+
+						<div class="imageWrap">
+							<image :src="phoneImg" mode="" />
+						</div>
+						<input placeholder-style="color:#999" type="text" name="uname" v-model="uname" placeholder="账号" />
+
+					</div>
+
+					<div class="view-group">
+						<div class="imageWrap">
+							<image :src="passImg" mode="" />
+						</div>
+
+
+						<input placeholder-style="color:#999" type="password" name="pwd" v-model="pwd" placeholder="密码" />
+					</div>
+				</div>
+				<div class="userRule">
+					<input name="radio" type="radio" checked="checked">
+
+					我已阅读并同意<a href="userRule.html">用户协议及隐私政策</a></div>
+				<div class="bindPhone" @click="registAcount()">快速注册</div>
+
+			</div>
+
+
+
+
+			<!-- 忘记密码 -->
+			<div class="commonMask forgetMask pboneInfo" v-if="isFindPass">
+				<div class="headerTite">
+					<span>忘记密码</span>
+					<img :src="closeImg" class="closeImg" @click="isFindPass = false" />
+				</div>
+				<div class="bottomContent ">
+					<div class="view-group">
+						<image :src="userImg" mode="" />
+						<div class="phoneInput groupItem">
+							<input placeholder-style="color:#999" type="text" name="newAcount" v-model="newAcount" placeholder="请输入你的账号" />
+						</div>
+					</div>
+					<div class="view-group">
+						<image :src="phoneImg" mode="" />
+						<div class="phoneInput groupItem">
+							<input onkeyup="this.value=this.value.replace(/\D/g,'')" onafterpaste="this.value=this.value.replace(/\D/g,'')"
+							 placeholder-style="color:#999" type="text" maxlength="11" name="findPhone" v-model="findPhone" placeholder="请输入绑定的手机号码" />
+						</div>
+					</div>
+
+					<div class="view-group">
+						<image :src="codeImg" mode="" />
+						<div class="groupItem">
+							<input class="codeInput" maxlength="6" placeholder-style="color:#999" type="text" name="newCode" v-model="newCode"
+							 placeholder="请输入验证码" />
+							<div class="getcodeAll selectColor" @click="getForgetCode" :disabled="countdownNew < 60 && countdownNew >= 1">
+								{{ countdownNew < 60 && countdownNew >= 1 ? `${countdownNew}秒后可重发` : '获取验证码' }}
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="bindPhone" @click="nextTip()">重置密码</div>
+			</div>
+			<!-- 重置密码 -->
+			<div class="pboneInfo commonMask" v-if="isRetPass">
+				<div class="headerTite">
+					<span>重置密码</span>
+					<img :src="closeImg" class="closeImg" @click="isRetPass = false" />
+				</div>
+				<div class="bottomContent ">
+					<div class="view-group">
+						<image :src="passImg" mode="" />
+						<div class="phoneInput groupItem">
+							<input placeholder-style="color:#999" type="password" name="newPass" v-model="newPass" placeholder="请输入新的密码" />
+						</div>
+					</div>
+					<div class="view-group">
+						<image :src="editImg" mode="" />
+						<div class="phoneInput groupItem">
+							<input placeholder-style="color:#999" type="password" name="newPassConfirm" v-model="newPassConfirm" placeholder="请确认新密码" />
+						</div>
+					</div>
+
+				</div>
+				<div class="bindPhone" @click="resetPass()">确认重置</div>
+			</div>
+
+
+
+			<!-- 用户绑定手机号 -->
+
+			<div class="userInfoMask commonMask" v-if="isShow">
+				<div class="topContent">
+					<img :src="logoImg" class="logoImg">
+					<p>账号:{{userInfo.uname}}</p>
+					<p>用户ID:{{userInfo.uid}}</p>
+					<img :src="closeImg" class="closeImg" @click="isShow = false">
+				</div>
+				<div class="bottomContent ">
+
+
+					<div class="" style="display: flex;">
+						<div id="" style="flex: 1;text-align: center;" @click="isShowInfo = true">
+							<img :src="accountImg" class="accountImg">
+							<p>账号</p>
+						</div>
+						<div id="" style="flex: 1;text-align: center;" @click="isShowContact = true">
+							<img :src="kefuImg" class="accountImg">
+							<p>客服</p>
+						</div>
+					</div>
+					<p class="version">当前版本：{{appInfo.newVersion}}</p>
+				</div>
+			</div>
+
+
+			<!-- 选择手机绑定或者实名认证 -->
+			<div class="accountInfo commonMask" v-if="isShowInfo">
+				<div class="headerTite">
+					<span>账号</span>
+					<img :src="closeImg" class="closeImg" @click="isShowInfo = false" />
+				</div>
+				<div class="bottomContent ">
+					<div class="bottomContentItem" @click="isShowInfo = false,isBindPhone = true">
+						<div class="bottomContentItemSmall">
+							<!-- <div class="itemSmall"> -->
+							<img :src="phoneImg" class="phoneImg">
+							<!-- </div> -->
+							<p class="bindText">绑定手机</p>
+						</div>
+						<img :src="arrowImg">
+					</div>
+					<div class="bottomContentItem" @click="isShowInfo = false,isReconise = true">
+						<div class="bottomContentItemSmall">
+							<!-- <div class="itemSmall"> -->
+							<img :src="idcardImg" class="idcardImg">
+							<!-- </div> -->
+							<p>实名验证</p>
+						</div>
+						<img :src="arrowImg">
+					</div>
+				</div>
+
+				<div class="bindPhone" @click="isShow= false ,isShowInfo = false,isSelectLoginWay = true">切换账户</div>
+			</div>
+
+			<!-- 绑定手机号 -->
+			<div class="pboneInfo commonMask" v-if="isBindPhone">
+				<div class="headerTite">
+					<span>绑定手机</span>
+					<img :src="closeImg" class="closeImg" @click="isBindPhone = false" />
+				</div>
+				<div class="bottomContent ">
+					<div class="view-group">
+						<image :src="phoneImg" mode="" />
+						<div class="phoneInput groupItem">
+							<input onkeyup="this.value=this.value.replace(/\D/g,'')" onafterpaste="this.value=this.value.replace(/\D/g,'')"
+							 placeholder-style="color:#999" type="text" maxlength="11" name="bindMobile" v-model="bindMobile" placeholder="请输入手机号码" />
+						</div>
+					</div>
+					<div class="view-group">
+						<image :src="codeImg" mode="" />
+						<div class="groupItem">
+							<input class="codeInput" maxlength="6" placeholder-style="color:#999" type="text" name="bindCode" v-model="bindCode"
+							 placeholder="请输入验证码" />
+							<div class="getcodeAll selectColor" @click="getCodeBind" :disabled="countdownBind < 60 && countdownBind >= 1">
+								{{ countdownBind < 60 && countdownBind >= 1 ? `${countdownBind}秒后可重发` : '获取验证码' }}
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="bindPhone" @click="bindUserPhone()">立即绑定手机</div>
+			</div>
+
+			<!-- 实名认证 -->
+
+			<div class="reconiseInfo commonMask" v-if="isReconise">
+				<div class="headerTite">
+					<span>实名认证</span>
+					<img :src="closeImg" class="closeImg" @click="isReconise = false" />
+				</div>
+				<div class="bottomContent ">
+					<p class="font10">根据《网络游戏管理办法暂行办法》规定,游戏用户需要进行实名认证。请在下方输入对应信息进行认证</p>
+					<div class="view-group">
+						<div class="labelNamt">姓名</div>
+						<input placeholder-style="color:#999" type="text" maxlength="10" name="truename" v-model="truename" placeholder="请输入真实姓名" />
+					</div>
+					<div class="view-group">
+						<div class="labelNamt">身份证</div>
+						<input placeholder-style="color:#999" type="text" name="idcard" v-model="idcard" placeholder="请填写真实有效的身份信息" />
+					</div>
+				</div>
+				<div class="bindPhone" @click="setFcmInfo()">完成认证</div>
+			</div>
+
+
+			<!-- 客服 -->
+			<div class="reconiseInfo commonMask" v-if="isShowContact">
+				<div class="headerTite">
+					<span>联系客服</span>
+					<img :src="closeImg" class="closeImg" @click="isShowContact = false" />
+				</div>
+				<div class="bottomContent ">
+					<!-- item.value -->
+					<!-- 	 <a href="tel:400-0000-688">{{contactList[0].name}}</a>
+					<a href="tencent://message/?uin=1077321622&Site=sc.chinaz.com&Menu=yes">tencent咨询</a> -->
+					<!-- -->
+					<div class="contactLink" v-for="item of contactList">
+						<!-- {{item.name}} -->
+						<a :href="item.type === 'tel' ? 'tel:'+ item.value : 'tencent://message/?uin='+item.value+'&Site=sc.chinaz.com&Menu=yes' ">{{item.name}}</a>
+					</div>
+
+				</div>
+
+			</div>
+		</div>
+	</body>
+</html>
+
+<script type="text/javascript">
+	var vm = new Vue({
+		el: '#app',
+		data: {
+			toastShow:false,
+			toastText:'',
+			m_h: '',
+			m_w:'',
+			sign: '',
+			adid: '1',
+			agentId: '2',
+			appid: '11',
+			brand: '',
+			os: '',
+			systemversion: '',
+			time: '',
+			newAcount: '', // 找回密码
+
+			isSelectLoginWay: false,
+			isShowPay: false,
+			expandImg: 'img/expand.png', // 账户
+			passImg: 'img/pass.png',
+			payInfo: '',
+			userInfo: '',
+			closeImg: 'img/greyclose.png', // 关闭
+			arrowImg: 'img/arrow.png', // 箭头
+			selectImg: 'img/select.png', // 选中支付方式
+			editImg: 'img/edit.png', // 确认密码
+			selectActive: 'wechat',
+			wechatType: '', // 判断微信支付类型
+			weChatParameter: '', // 微信内支付所需要的参数
+			url: '',
+			isShowWay: false, //登录方式
+			isPhoneLogin: false, // 手机号登录
+			isPassLogin: false, //账号登录
+			isUserResign: false, //注册
+			isFindPass: false, // 找回密码
+			isRetPass: false,
+			findPhone: '', // 找回密码绑定的手机
+			newCode: '', //找回密码绑定的手机验证码
+			newPass: '', // 新密码
+			newPassConfirm: '', //确认新密码
+			mobile: '', // 手机号
+			code: '', // 验证码
+			uname: '',
+			pwd: '',
+			userInfo: '',
+			// 
+			myName: '',
+			myPass: '',
+
+			pass: '', // 重置密码
+			countdown: 60,
+			countdownNew: 60,
+			phoneImg: 'img/phone.png', // 手机号
+			codeImg: 'img/code.png', // 验证码
+
+			idcardImg: 'img/idcard.png', // 实名认证
+
+			logoImg: 'img/logo.png', // logo
+			accountImg: 'img/account.png', // 账户
+			userImg: 'img/user.png',
+			returnImg: 'img/return.png', // 返回
+			payList: [{
+					name: '微信支付',
+					img: 'img/wxpay.png',
+					text: '推荐使用微信',
+					value: 'wechat'
+				},
+				{
+					name: '支付宝支付',
+					img: 'img/alipay.png',
+					text: '',
+					value: 'alipay'
+				}
+			],
+
+			payType: '', // 支付方式:支付宝h5:ALIPAY-H5 ; 微信H5:WECHAT-H5; 微信公众号: WEHCAT-GZH
+			loginList: [{
+					name: '账号密码登录',
+					value: 'accountLogin'
+				},
+				{
+					name: '手机登录',
+					value: 'phoneLogin'
+				}
+			],
+			selectLoginWay: 'accountLogin',
+
+
+			// 实名认证 || 绑定手机号
+			isShow: false,
+			isShowInfo: false,
+			isBindPhone: false,
+			isReconise: false,
+			bindmobile: '', // 手机号
+			bindCode: '', // 验证码
+			truename: '', // 用户名
+			idcard: '', // 身份证号
+			countdownBind: 60,
+			kefuImg: 'img/kefu.png',
+			idcardImg: 'img/idcard.png', // 实名认证
+			isShowContact: false,
+			logoImg: 'img/logo.png', // logo
+			accountImg: 'img/account.png',
+			contactList: [],
+			appInfo: {},
+			wechatCode: ''
+		},
+		created() {
+
+			this.time = new Date().getTime()
+			this.wechatType = this.isWeixn()
+			this.userInfo = localStorage.getItem('userInfo') ? JSON.parse(localStorage.getItem('userInfo')) : {},
+				console.log(this.userInfo)
+			let _this = this
+			window.addEventListener('message', function(e) {
+				_this.isShowPay = true
+				_this.payInfo = e.data
+				console.log('0000000000000000000000000000000000')
+				console.log(e)
+			})
+			
+			// 支付类型
+			if (this.wechatType) {
+				// this.payType = 'WEHCAT-GZH'
+				this.payType = 'WXPAY-APP'
+			} else {
+				// this.payType = 'WECHAT-H5'
+				this.payType = 'WXPAY-APP'
+			}
+
+			// 联系方式
+			this.getCustomer()
+			// 检查更新
+			this.getCheckVersion()
+			
+			window.addEventListener('resize', function () {
+			   _this.h5_screen_orientation();
+			
+				
+			}, false);
+			_this.h5_screen_orientation()
+		},
+		mounted() {
+
+			// this.userInfo.uid ? '' : this.getFastreg()
+			this.uname = this.userInfo.uname
+			this.pwd = this.userInfo.pwd
+			this.sign = hex_md5((this.userInfo.uid ? this.userInfo.uid : this.time) + '11' + this.time +
+				'ae2ae511dbed7c9620691d45fbb6e17e')
+			console.log(this.userInfo.uid ? this.userInfo.uid : this.time)
+			console.log(this.appid)
+			console.log(this.time)
+			console.log(this.sign)
+			console.log('88888888888888888888888888888888888888888888888888')
+			// http://api.nsdk.u49you.com/channel/H5/login/chn_gid/463/source/hnlg_llh5?uid=
+			this.url = "https://api.nsdk.u49you.com/channel/H5/login/chn_gid/463/source/hnlg_llh5?uid=" + (this.userInfo.uid ?
+					this.userInfo.uid : this.time) + "&uname=" + (this.userInfo.uname ? this.userInfo.uname : this.time) +
+				"&appid=11&time=" + this.time + "&sign=" + this.sign
+			var md = new MobileDetect(window.navigator.userAgent);
+
+			this.brand = md.mobile()
+			this.os = md.os()
+			this.systemversion = md.version()
+			this.isSelectLoginWay = this.userInfo.uid ? false : true,
+				// 
+				this.wechatCode = getQueryString('code')
+			// alert(this.wechatCode)
+
+
+
+			// 设置iframe高度
+			// setInterval(this.reinitIframe, 100);
+			
+		},
+
+		methods: {
+		
+			
+			
+			//根据屏幕宽和高 决定是否显示”旋转示意图“ 并 改变分享栏style
+			 h5_screen_orientation() {
+			  this.m_h = window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight;
+			    this.m_w = window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth;
+			    $("#h5-game-iframe").css("height", this.m_h);
+				console.log(this.m_h)
+			    $("#h5-game-iframe").css("width", this.m_w);
+			},
+			toast(str) {
+				let v = this
+				v.toastText = str
+				v.toastShow = true
+				setTimeout(function() {
+					v.toastShow = false
+				}, 1500)
+			},
+			isReconiseInfo() {
+				let num = 0
+				// num++
+				this.toast(num)
+				this.isShow = true
+			},
+			
+			// 设置iframe高度
+			reinitIframe() {
+				var _this = this;
+				var iframe = document.getElementById("frameObj");
+				try {
+					var bHeight = iframe.contentWindow.document.body.scrollHeight;
+					var dHeight = iframe.contentWindow.document.documentElement.scrollHeight;
+					var height = Math.min(bHeight, dHeight);
+					_this.height = height;
+					// console.log(iframe.contentWindow);
+					//  console.log(bHeight,dHeight);
+				} catch (ex) {
+					console.log(ex)
+					_this.height = 700
+				}
+			},
+			// 判断是否在微信内
+			isWeixn() {
+				var ua = window.navigator.userAgent.toLowerCase();
+				if (ua.match(/MicroMessenger/i) == 'micromessenger') {
+					return true;
+				} else {
+					return false;
+				}
+			},
+			// 立即付款
+			payMoneyNow() {
+				this.addOrder()
+			},
+			// 下单接口 
+			addOrder() {
+				this.time = new Date().getTime()
+
+				this.sign = hex_md5(this.payInfo.money + this.userInfo.uid + this.agentId + this.appid + this.adid + this.payInfo
+					.server_id + this.time)
+
+				console.log(this.payInfo.money + this.userInfo.uid + this.agentId + this.appid + this.adid + this.payInfo
+					.server_id + this.time)
+				let device_params = {
+					"imei": '',
+					"uuid": '',
+					"model": '', //型号
+					"brand": this.brand,
+					"manufacturer": '', // 制造商
+					"display": '', //手机分辨率
+					"network": '', //网络环境
+					"netWorkName": '', // 网络环境名称
+					"ip": '',
+					"isEmulator": true, //是否是模拟器
+					"phonenum": '',
+					"systemsdkversion": '', // 系统sdk版本
+					"os": this.os,
+					"systemversion": this.systemversion ? this.systemversion : ''
+				}
+				// device_params = JSON.stringify(device_params)
+				let data = {
+					"payType": this.payType,
+					"agentId": this.agentId, // 应用的渠道ID
+					"adid": this.adid, // 应用的广告ID
+					'uid': this.userInfo.uid,
+					"appid": this.appid, // 应用的appid
+					"serverid": this.payInfo.server_id, // 服务器id
+					"device_params": device_params,
+					"sign": this.sign,
+					"time": this.time,
+					"os": "h5",
+					"extension": this.payInfo.ext, // 游戏订单ID
+					"productid": this.payInfo.product_id ? this.payInfo.product_id : '',
+					"rolename": this.payInfo.role_name,
+					"roleid": this.payInfo.role_id,
+					"money": this.payInfo.money,
+					"servername": this.payInfo.server_name,
+					"rolelevel": this.payInfo.role_level,
+					"productname": this.payInfo.product_name,
+				}
+				console.log(this.payType)
+				// http://192.168.3.39:8180/api/
+				this.$http.post(apiDomain + 'member/addOrder', data).then(function(res) {
+					console.log('----------------------------------------')
+					console.log(res)
+					// alert(res.body.msg+'下单')
+					if (res.body.code === 200) {
+						this.payMoney(res.body.data.orderid)
+					}
+					// 
+				}, function(res) {
+					// console.log(res.status);
+				});
+			},
+
+			// 调起微信支付
+			payMoney(orderId) {
+				if (this.selectActive === 'wechat') {
+					if (this.wechatType) {
+						// this.payType = 'WEHCAT-GZH'
+						this.payType = 'WXPAY-APP'
+						// 微信内支付
+						console.log('微信支付---微信内支付')
+
+						window.location.href =
+							'https://open.weixin.qq.com/connect/oauth2/authorize?appid=wxe3a9a92cbd0d753e&redirect_uri=https%3a%2f%2fwww.hnllhy.cn%2f&response_type=code&scope=snsapi_userinfo&state=STATE#wechat_redirect'
+						this.wechatCode = getQueryString('code')
+						this.toast(this.wechatCode + 'code')
+						// 
+						if (this.wechatCode) {
+							let data = {
+								orderId: orderId,
+								payType: this.payType,
+								code: this.wechatCode
+							}
+
+							this.$http.post('https://www.hnllhy.cn/paycenter/pay/prepay', data).then(function(res) {
+								console.log('----------------------------------------')
+								console.log(res)
+								this.toast(res.body.message + '支付')
+								if (res.body.code === 200) {
+									console.log(code)
+									this.weChatParameter = res.body.result
+									this.weichatPayInside(res.body.result)
+								}
+
+							}, function(res) {
+								// console.log(res.status);
+							});
+
+						}
+
+					} else {
+
+						// this.payType = 'WECHAT-H5'
+						this.payType = 'WXPAY-APP'
+						console.log('微信支付---微信外支付')
+						//  这里是后端返回的URL直接进行跳转即可完成微信外支付
+						let data = {
+							orderId: orderId,
+							payType: this.payType
+						}
+
+						this.$http.post('https://www.hnllhy.cn/paycenter/pay/prepay', data).then(function(res) {
+							console.log('----------------------------------------')
+							console.log(res)
+							this.toast(res.body.message + '支付')
+							if (res.body.code === 200) {
+								let url = res.body.result.mweb_url
+								// 微信外支付
+								url = url + '&redirect_url=' + urlencode('https://www.hnllhy.cn/')
+								window.location.replace(url) //
+							}
+
+						}, function(res) {
+							// console.log(res.status);
+						});
+
+
+					}
+				} else if (this.selectActive === 'alipay') {
+					// 
+					this.payType = 'ALIPAY-APP'
+					let data = {
+						orderId: orderId,
+						payType: this.payType
+					}
+					console.log(this.payType)
+					// https://www.hnllhy.cn/paycenter/pay/prepay
+					// 
+					this.$http.post('https://www.hnllhy.cn/paycenter/pay/prepay', data).then(function(res) {
+						console.log('----------------------------------------')
+						console.log(res)
+						// alert(res.body.message+'支付')
+						if (res.body.code === 200) {
+							// const div = document.createElement('div');
+							// console.log(res.body.result.AliPayHtml)
+							// div.innerHTML = (res.body.result.AliPayHtml);  //res.data是返回的表单
+							// document.body.appendChild(div);
+							// document.forms[0].submit();
+							window.location.href = res.body.data.pay_url
+						}
+
+					}, function(res) {
+						// console.log(res.status);
+					});
+
+					console.log('支付宝支付')
+
+				}
+			},
+
+			// 微信内支付
+			weichatPayInside(data) {
+				if (typeof WeixinJSBridge == "undefined") {
+					if (document.addEventListener) {
+						document.addEventListener('WeixinJSBridgeReady', this.onBridgeReady(data), false);
+					} else if (document.attachEvent) {
+						document.attachEvent('WeixinJSBridgeReady', this.onBridgeReady(data));
+						document.attachEvent('onWeixinJSBridgeReady', this.onBridgeReady(data));
+					}
+				} else {
+					this.onBridgeReady(data)
+				}
+			},
+			//微信内置浏览器类
+			onBridgeReady(data) {
+				var timestamp = Math.round(data.timeStamp).toString();
+				WeixinJSBridge.invoke(
+					'getBrandWCPayRequest', {
+						debug: true,
+						"appId": data.appId, //公众号名称，由商户传入
+						"timeStamp": timestamp, //时间戳，自1970年以来的秒数
+						"nonceStr": data.nonceStr, //随机串
+						"package": data.package,
+						"signType": data.signType, //微信签名方式：
+						"paySign": data.paySign, //微信签名
+						jsApiList: [
+							'chooseWXPay'
+						]
+					},
+					function(res) {
+						console.log(res)
+						// 使用以上方式判断前端返回,微信团队郑重提示：res.err_msg将在用户支付成功后返回ok，但并不保证它绝对可靠。
+						if (res.err_msg == "get_brand_wcpay_request:ok") {
+							this.toast('支付成功')
+							// vm.number = null
+							// vm.$router.go(-1)
+							//window.location.href = vm.BASE_URL + 'index.html#/depositResult'
+						} else {
+							this.toast('支付失败')
+						}
+					})
+			},
+			// 游客登录
+			freeLogin() {
+				this.time = new Date().getTime()
+				this.sign = hex_md5(this.userInfo.uid ? this.userInfo.uid : '' + this.agentId + this.adid + this.time + this.appid)
+				let data = {
+					adid: this.adid,
+					agentId: this.agentId,
+					appid: this.appid,
+					sign: this.sign,
+					time: this.time,
+					os: 'h5',
+					reg_type: '0'
+				}
+				this.$http.post(apiDomain + 'member/tourist', data).then(function(res) {
+					if (res.body.code === 200) {
+						// alert(res.body.msg)
+						this.toast(res.body.msg)
+						localStorage.setItem('userInfo', JSON.stringify(res.body.data))
+						window.location.reload()
+					} else {
+						this.toast(res.body.msg)
+					}
+				}, function(res) {
+
+				});
+			},
+			// 获取随机账号
+			getFastreg() {
+				this.$http.get(apiDomain + 'member/fastreg').then(function(res) {
+					console.log(res)
+					this.uname = res.body.data.uname
+					this.pwd = res.body.data.pwd
+				}, function(res) {
+
+				});
+			},
+			// 客服热线
+			getCustomer() {
+				this.time = new Date().getTime()
+				this.sign = hex_md5(this.userInfo.uid ? this.userInfo.uid : '' + this.agentId + this.adid + this.time + this.appid)
+				let data = {
+					adid: this.adid,
+					agentId: this.agentId,
+					appid: this.appid,
+					os: "h5",
+					sign: this.sign,
+					time: this.time
+				}
+				this.$http.post(apiDomain + 'member/customer', data).then(function(res) {
+					console.log(res)
+					this.contactList = res.body.data
+				}, function(res) {
+
+				});
+			},
+			// 
+			// 检查更新
+			getCheckVersion() {
+				this.time = new Date().getTime()
+				this.sign = hex_md5(this.userInfo.uid ? this.userInfo.uid : '' + this.agentId + this.adid + this.time + this.appid)
+				let data = {
+					adid: this.adid,
+					agentId: this.agentId,
+					appid: this.appid,
+					os: "h5",
+					sign: this.sign,
+					time: this.time,
+					token: "",
+					version: ""
+				}
+
+				this.$http.post(apiDomain + 'member/checkVersion', data).then(function(res) {
+					this.appInfo = res.body.data
+					console.log(res)
+
+				}, function(res) {
+
+				});
+			},
+			// 注册账号(用户名注册)
+			registAcount() {
+				if (!this.uname) {
+					this.toast("请输入用户名");
+					// this.toast(res.body.msg)
+					return false;
+				}
+				// if(this.myName.length < 4 || this.myName.length > 8){
+				// 	alert("用户名长度在4~8");
+				// 	return false;
+				// }
+				if (!this.pwd) {
+					this.toast("请输入密码");
+					return false;
+				}
+				// if(this.myPass.length  < 6){
+				// 	alert("请输入6位密码");
+				// 	return false;
+				// }
+				this.time = new Date().getTime()
+				this.sign = hex_md5(this.userInfo.uid ? this.userInfo.uid : '' + this.agentId + this.adid + this.time + this.appid)
+				let data = {
+					adid: this.adid,
+					agentId: this.agentId,
+					appid: this.appid,
+					sign: this.sign,
+					time: this.time,
+					os: 'h5',
+					uname: this.uname,
+					pwd: this.pwd,
+					reg_type: '1', //1：用户名注册，2：随机注册，3：短信登录,0:为游客登录
+				}
+
+				this.$http.post(apiDomain + 'member/login', data).then(function(res) {
+					// this.countDown()
+					if (res.body.code === 200) {
+						this.toast(res.body.msg)
+						// this.isUserResign = false
+						// this.isPassLogin = false
+						// 注册成功后存储用户信息
+						localStorage.setItem('userInfo', JSON.stringify(res.body.data))
+						window.location.reload()
+					} else {
+						this.toast(res.body.msg)
+					}
+
+				}, function(res) {
+					// console.log(res.status);
+				});
+			},
+			// 用户名登录 || 随机账号登录
+			userPassLogin() {
+				if (!this.myName) {
+					this.toast("请输入用户名");
+					return false;
+				}
+
+				if (!this.myPass) {
+					this.toast("请输入密码");
+					return false;
+				}
+				this.time = new Date().getTime()
+				this.sign = hex_md5(this.userInfo.uid ? this.userInfo.uid : '' + this.agentId + this.adid + this.time + this.appid)
+				let data = {
+					adid: this.adid,
+					agentId: this.agentId,
+					appid: this.appid,
+					sign: this.sign,
+					time: this.time,
+					os: 'h5',
+					uname: this.myName,
+					pwd: this.myPass,
+					reg_type: '1', //1：用户名注册，2：随机注册，3：短信登录,0:为游客登录
+				}
+
+				this.$http.post(apiDomain + 'member/login', data).then(function(res) {
+					// this.countDown()
+					if (res.body.code === 200) {
+						this.toast(res.body.msg)
+						this.isPassLogin = false
+						// 注册成功后存储用户信息
+						window.location.reload()
+						localStorage.setItem('userInfo', JSON.stringify(res.body.data))
+					} else {
+						this.toast(res.body.msg)
+					}
+
+				}, function(res) {
+					// console.log(res.status);
+				});
+			},
+			// 倒计时
+			countDown() {
+				if (this.countdown < 60 && this.countdown >= 1) {
+					return;
+				}
+
+				let self = this;
+				self.countdown = 60;
+				self.countdown -= 1;
+				if (self.clear) {
+					clearInterval(self.clear);
+				}
+				self.clear = null;
+				self.clear = setInterval(_ => {
+					if (self.countdown > 0) {
+						self.countdown -= 1;
+					} else {
+						clearInterval(self.clear);
+					}
+				}, 1000);
+			},
+			countDownNew() {
+				if (this.countdownNew < 60 && this.countdownNew >= 1) {
+					return;
+				}
+
+				let self = this;
+				self.countdownNew = 60;
+				self.countdownNew -= 1;
+				if (self.clear) {
+					clearInterval(self.clear);
+				}
+				self.clear = null;
+				self.clear = setInterval(_ => {
+					if (self.countdownNew > 0) {
+						self.countdownNew -= 1;
+					} else {
+						clearInterval(self.clear);
+					}
+				}, 1000);
+			},
+			// 获取验证码
+			getCode() {
+				if (!this.mobile) {
+					this.toast("请输入手机号");
+					return false;
+				}
+				if (!(/^1(3|4|5|7|8)\d{9}$/.test(this.mobile))) {
+					this.toast("手机号码有误，请重新输入");
+					return false;
+				}
+				// 发送验证码
+				if (this.countdown < 60 && this.countdown >= 1) {
+					return
+				}
+				this.time = new Date().getTime()
+				this.sign = hex_md5(this.userInfo.uid ? this.userInfo.uid : '' + this.agentId + this.adid + this.time + this.appid)
+				let data = {
+					adid: this.adid,
+					agentId: this.agentId,
+					appid: this.appid,
+					sign: this.sign,
+					time: this.time,
+					os: 'h5',
+					phone: this.mobile
+
+				}
+
+				this.$http.post(apiDomain + 'member/code', data).then(function(res) {
+					this.countDown()
+					console.log(res)
+					this.toast(res.body.msg)
+				}, function(res) {
+					// console.log(res.status);
+				});
+			},
+			// 手机号登录
+			phoneUserPhone() {
+				console.log('绑定手机')
+				if (!this.mobile) {
+					this.toast("请输入手机号");
+					return false;
+				}
+				if (!(/^1(3|4|5|7|8)\d{9}$/.test(this.mobile))) {
+					this.toast("手机号码有误，请重新输入");
+					return false;
+				}
+				if (!this.code) {
+					this.toast("请输入验证码");
+					return false;
+				}
+				this.time = new Date().getTime()
+				this.sign = hex_md5(this.userInfo.uid ? this.userInfo.uid : '' + this.agentId + this.adid + this.time + this.appid)
+				let data = {
+					adid: this.adid,
+					agentId: this.agentId,
+					appid: this.appid,
+					sign: this.sign,
+					time: this.time,
+					os: 'h5',
+					phone: this.mobile,
+					code: this.code,
+					reg_type: '3',
+
+
+				}
+
+				this.$http.post(apiDomain + 'member/login', data).then(function(res) {
+					// this.countDown()
+					if (res.body.code === 200) {
+						this.toast(res.body.msg)
+						this.isPassLogin = false
+						// 注册成功后存储用户信息
+						window.location.reload()
+						localStorage.setItem('userInfo', JSON.stringify(res.body.data))
+					} else {
+						this.toast(res.body.msg)
+					}
+				}, function(res) {
+					// console.log(res.status);
+				});
+			},
+			// 忘记密码 发送验证码
+			getForgetCode() {
+				if (!this.findPhone) {
+					this.toast("请输入手机号");
+					return false;
+				}
+				if (!(/^1(3|4|5|7|8)\d{9}$/.test(this.findPhone))) {
+					this.toast("手机号码有误，请重新输入");
+					return false;
+				}
+				// 发送验证码
+				if (this.countdownNew < 60 && this.countdownNew >= 1) {
+					return
+				}
+				this.time = new Date().getTime()
+				this.sign = hex_md5(this.userInfo.uid ? this.userInfo.uid : '' + this.agentId + this.adid + this.time + this.appid)
+				let data = {
+					adid: this.adid,
+					agentId: this.agentId,
+					appid: this.appid,
+					sign: this.sign,
+					time: this.time,
+					os: 'h5',
+					phone: this.findPhone
+
+				}
+				this.$http.post(apiDomain + 'member/code', data).then(function(res) {
+					this.countDownNew()
+					console.log(res)
+					this.toast(res.body.msg)
+				}, function(res) {
+					// console.log(res.status);
+				});
+			},
+			// 下一步验证
+			nextTip() {
+				console.log('绑定手机')
+				if (!this.newAcount) {
+					this.toast("请输入你的账号");
+					return false;
+				}
+				if (!this.findPhone) {
+					this.toast("请输入手机号");
+					return false;
+				}
+				if (!(/^1(3|4|5|7|8)\d{9}$/.test(this.findPhone))) {
+					this.toast("手机号码有误，请重新输入");
+					return false;
+				}
+				if (!this.newCode) {
+					this.toast("请输入验证码");
+					return false;
+				}
+				this.isFindPass = false
+				this.isRetPass = true
+
+			},
+
+			//忘记密码重置 
+			resetPass() {
+				if (!this.newPass) {
+					this.toast("请输入密码");
+					return false;
+				}
+				if (this.newPassConfirm != this.newPass) {
+					this.toast("请确认两次密码输入一致");
+					return false;
+				}
+				this.time = new Date().getTime()
+				this.sign = hex_md5(this.userInfo.uid ? this.userInfo.uid : '' + this.agentId + this.adid + this.time + this.appid)
+				let data = {
+					adid: this.adid,
+					agentId: this.agentId,
+					appid: this.appid,
+					sign: this.sign,
+					time: this.time,
+					uname: this.uname,
+					phone: this.mobile,
+					code: this.newCode,
+					pwd: this.newPassConfirm,
+					reg_type: '1',
+					os: 'h5'
+
+
+
+				}
+				this.$http.post(apiDomain + 'member/reset', data).then(function(res) {
+					if (res.body.code === 200) {
+						this.toast(res.body.msg)
+						this.isPassLogin = false
+						// 注册成功后存储用户信息
+						window.location.reload()
+						localStorage.setItem('userInfo', JSON.stringify(res.body.data))
+					} else {
+						this.toast(res.body.msg)
+					}
+				}, function(res) {
+					// console.log(res.status);
+				});
+			},
+
+
+			// 实名认证或者绑定手机号
+			// 倒计时
+			countDownBind() {
+				if (this.countdownBind < 60 && this.countdownBind >= 1) {
+					return;
+				}
+
+				let self = this;
+				self.countdownBind = 60;
+				self.countdownBind -= 1;
+				if (self.clear) {
+					clearInterval(self.clear);
+				}
+				self.clear = null;
+				self.clear = setInterval(_ => {
+					if (self.countdownBind > 0) {
+						self.countdownBind -= 1;
+					} else {
+						clearInterval(self.clear);
+					}
+				}, 1000);
+			},
+			// 获取验证码
+			getCodeBind() {
+				if (!this.bindmobile) {
+					this.toast("请输入手机号");
+					return false;
+				}
+				if (!(/^1(3|4|5|7|8)\d{9}$/.test(this.bindmobile))) {
+					this.toast("手机号码有误，请重新输入");
+					return false;
+				}
+				// 发送验证码
+				if (this.countdownBind < 60 && this.countdownBind >= 1) {
+					return
+				}
+				this.time = new Date().getTime()
+				this.sign = hex_md5(this.userInfo.uid ? this.userInfo.uid : '' + this.agentId + this.adid + this.time + this.appid)
+				let data = {
+					adid: this.adid,
+					agentId: this.agentId,
+					appid: this.appid,
+					sign: this.sign,
+					time: this.time,
+					os: 'h5',
+					phone: this.bindmobile
+				}
+
+				this.$http.post(apiDomain + 'member/code', data).then(function(res) {
+					this.countDownBind()
+				}, function(res) {
+					// console.log(res.status);
+				});
+			},
+			// 绑定手机
+			bindUserPhone() {
+				console.log('绑定手机')
+				if (!this.bindmobile) {
+					this.toast("请输入手机号");
+					return false;
+				}
+				if (!(/^1(3|4|5|7|8)\d{9}$/.test(this.bindmobile))) {
+					this.toast("手机号码有误，请重新输入");
+					return false;
+				}
+				if (!this.code) {
+					this.toast("请输入验证码");
+					return false;
+				}
+				this.time = new Date().getTime()
+				this.sign = hex_md5(this.userInfo.uid ? this.userInfo.uid : '' + this.agentId + this.adid + this.time + this.appid)
+				let data = {
+					adid: this.adid,
+					agentId: this.agentId,
+					appid: this.appid,
+					sign: this.sign,
+					time: this.time,
+					phone: this.bindmobile,
+					code: this.bindCode,
+					reg_type: '1',
+					os: 'h5',
+					uid: this.userInfo.uid
+				}
+
+
+				this.$http.post(apiDomain + 'member/bind_phone_code', data).then(function(res) {
+					// this.countDown()
+					this.toast(res.body.msg)
+				}, function(res) {
+					// console.log(res.status);
+				});
+			},
+			// 实名验证 
+			setFcmInfo() {
+				if (!this.truename) {
+					this.toast("请输入真实姓名");
+					return false;
+				}
+				if (!this.idcard) {
+					this.toast("请输入身份证号码");
+					return false;
+				}
+				if (!(/^[1-9]{1}[0-9]{14}$|^[1-9]{1}[0-9]{16}([0-9]|[xX])$/.test(this.idcard))) {
+					this.toast("身份证号有误，请重新输入");
+					return false;
+				}
+				this.time = new Date().getTime()
+				this.sign = hex_md5(this.userInfo.uid ? this.userInfo.uid : '' + this.agentId + this.adid + this.time + this.appid)
+				let data = {
+					adid: this.adid,
+					agentId: this.agentId,
+					appid: this.appid,
+					sign: this.sign,
+					time: this.time,
+					truename: this.truename,
+					idcard: this.idcard,
+					os: 'h5',
+					uid: this.userInfo.uid
+				}
+
+				this.$http.post(apiDomain + 'member/setFcm', data).then(function(res) {
+					this.toast(res.body.msg)
+				}, function(res) {
+
+					// this.isReconise = false
+				});
+			}
+
+
+		},
+
+	});
+</script>
+
+<style type="text/css" scoped>
+	#app {
+		width: 100%;
+		height: 100vh;
+		display: flex;
+		justify-content: center;
+		align-items: center;
+
+	}
+
+
+	/* 左侧悬浮 */
+	.expandImgInfo {
+		width: 30px;
+		height: 30px;
+		position: fixed;
+		top: 200px;
+		left: 0;
+		/* background: #007AFF; */
+		z-index: 9998;
+	}
+	.expandImgInfo img{
+		width: 30px;
+		height: 30px;
+		
+	}
+
+	/* 支付按钮 */
+	.payBtn {
+		color: #fff;
+		border-radius: 5px;
+		padding: 10px 20px;
+		background: #00c2ff;
+		text-align: center;
+		margin: 0 50px 5px;
+	}
+
+
+	/* 遮罩层  */
+	.maskInfo {
+		width: 100%;
+		height: 100%;
+		/* background: #000000; */
+		z-index: 888;
+		position: absolute;
+		top: 0;
+		left: 0;
+		background: rgba(0, 0, 0, 0.75);
+		/* opacity: 0.5; */
+	}
+
+	/*  */
+	.commonMask {
+		width: 90%;
+		height: 330px;
+		position: fixed;
+		left: 5%;
+		top: 50%;
+		transform: translateY(-150px);
+		z-index: 9999;
+		background: #fff;
+		border-radius: 10px;
+		font-size: 14px;
+
+
+	}
+
+	.commonMaskPay {
+		width: 90%;
+
+		position: fixed;
+		left: 5%;
+		top: 50%;
+		transform: translateY(-150px);
+		z-index: 9999;
+		background: #fff;
+		border-radius: 10px;
+		font-size: 14px;
+	}
+
+	/* 登录方式选择 */
+	.specialMask {
+		width: calc(90% - 40px);
+		padding: 10px 20px;
+		position: fixed;
+		left: 5%;
+		top: 50%;
+		transform: translateY(-150px);
+		z-index: 9999;
+		background: #fff;
+		border-radius: 10px;
+		font-size: 14px;
+	}
+
+	.specialMask .bottomContent .view-group {
+		padding: 20px 0 !important;
+	}
+
+	/* 关闭图标 */
+	.closeImg {
+		width: 15px;
+		height: 15px;
+		position: absolute;
+		right: 20px;
+		top: 15px;
+
+	}
+
+	/* 登录方式头部 */
+
+
+
+	.loginWayTitle {
+		display: flex;
+		height: 50px;
+		line-height: 50px;
+	}
+
+	.loginWayTitle div {
+		flex: 1;
+		text-align: center;
+		border-bottom: 2px solid #ccc;
+		/* margin: 0 2px; */
+		/* padding: 5px 20px; */
+	}
+
+	.loginWayTitle div:nth-of-type(1) {
+		border-right: 2px solid #00C2FF;
+	}
+
+	.borderColor {
+		border-bottom: 2px solid #00C2FF !important;
+		color: #00C2FF;
+	}
+
+	/* 用户协议 */
+	.userRule {
+		text-align: center;
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		/* margin-top:30px; */
+	}
+
+	.userRule a {
+		color: #00C2FF;
+		text-decoration: none;
+	}
+
+	.userRule a:hover {
+		color: #00C2FF;
+	}
+
+	/*  */
+	.selectColor {
+		color: #00C2FF;
+	}
+
+	.userInfoMask {
+		text-align: center;
+	}
+
+
+
+	.userInfoMask p {
+		margin-top: 5px;
+	}
+
+	.userInfoMask .logoImg,
+	.userInfoMask .accountImg {
+		width: 60px;
+		height: 60px;
+		margin-top: 20px;
+	}
+
+
+	.bottomContentWay {
+		display: flex;
+		margin-top: 40px;
+	}
+
+	.bottomContentWay div {
+		flex: 1;
+		text-align: center;
+	}
+
+	.accountInfo .bottomContent {
+		width: 100%;
+		margin-top: 20px;
+	}
+
+	.accountInfo .bottomContent .bottomContentItem {
+		display: flex;
+		justify-content: space-between;
+		text-indent: 20px;
+		padding: 10px 20px;
+		margin-bottom: 20px;
+		align-items: center;
+
+	}
+
+	.accountInfo .bottomContent img {
+		width: 15px;
+		height: 15px;
+	}
+
+	.accountInfo .bottomContentItemSmall .phoneImg {
+		width: 15px;
+		height: 25px;
+	}
+
+	.accountInfo .bottomContentItemSmall .idcardImg {
+		width: 25px;
+		height: 20px;
+	}
+
+	.bindText {
+		text-indent: 30px;
+	}
+
+	.accountInfo .bottomContentItemSmall {
+		display: flex;
+		align-items: center;
+	}
+
+
+	/* 绑定手机号 */
+	.pboneInfo .view-group {
+		padding: 20px;
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+
+
+	}
+
+	.pboneInfo .view-group input {
+
+		height: 40px;
+		border: 1px solid #eee;
+		border-radius: 6px;
+		text-indent: 10px;
+	}
+
+	.pboneInfo .view-group:nth-of-type(1) input {
+		width: 100%;
+	}
+
+	.pboneInfo .groupItem {
+		flex: 1;
+	}
+
+	.pboneInfo .view-group:nth-of-type(2) .groupItem {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+	}
+
+	.pboneInfo .getcodeAll {
+		width: 40%;
+		height: 40px;
+		background: #00c2ff;
+		color: #FFFFFF;
+		text-align: center;
+		line-height: 40px;
+		border-radius: 20px;
+		font-size: 12px;
+
+	}
+
+	.pboneInfo .view-group img {
+		width: flex 0 0 25px;
+		height: 25px;
+		margin-right: 10px;
+	}
+
+
+
+	.codeInput {
+		width: 50%;
+	}
+
+	.bindPhone {
+		height: 50px;
+		line-height: 50px;
+		text-align: center;
+		border-radius: 25px;
+		background: #00c2ff;
+		color: #fff;
+		width: 80%;
+		margin-left: 10%;
+		margin-top: 10px;
+	}
+
+	.register {
+		display: flex;
+		justify-content: space-between;
+		/* text-align: right; */
+		padding-right: 10px;
+		padding-bottom: 10px;
+		margin-top: 10px;
+	}
+
+	/* 注册 */
+	.resigetInfo .view-group {
+		padding: 20px;
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		/* justify-content: center; */
+
+	}
+
+	.resigetInfo .view-group input {
+		/* width: 100%; */
+		height: 40px;
+		border: 1px solid #eee;
+		border-radius: 6px;
+		text-indent: 10px;
+		flex: 1;
+	}
+
+
+
+
+	.resigetInfo .imageWrap {
+		flex: 0 0 25px;
+		text-align: right;
+		margin-right: 10px;
+	}
+
+	.resigetInfo .view-group img {
+
+		height: 25px;
+		/* margin-right: 10px; */
+	}
+
+	/*  */
+	/* 账号 */
+	.headerTite {
+		border-top-right-radius: 10px;
+		border-top-left-radius: 10px;
+		/* background: #007AFF; */
+		height: 50px;
+		line-height: 50px;
+		text-align: center;
+		font-weight: bold;
+		font-size: 16px;
+		/* color: #FFFFFF; */
+	}
+
+	.payWay {
+		text-align: center;
+		background: #eee;
+		line-height: 40px;
+		position: relative;
+		top: -20px;
+	}
+
+	.accountInfo .bottomContent {
+		width: 100%;
+		/* margin-top: 20px; */
+	}
+
+	.accountInfo .bottomContent .bottomContentItem {
+		display: flex;
+		justify-content: space-between;
+		text-indent: 20px;
+		padding: 10px 20px;
+		margin-bottom: 20px;
+		align-items: center;
+		border-bottom: 1px solid #eee;
+
+	}
+
+	.accountInfo .bottomContent .bottomContentItem .price {
+		color: red;
+	}
+
+	.accountInfo .bottomContent img {
+		width: 25px;
+		height: 25px;
+	}
+
+	.accountInfo .bottomContent .arrowImg {
+		width: 15px;
+		height: 15px;
+	}
+
+	.accountInfo .bottomContentItemSmall {
+		display: flex;
+		align-items: center;
+	}
+
+
+	/* 忘记密码 */
+	.forgetMask .bottomContent .view-group {
+		padding: 10px 20px;
+		display: flex;
+	}
+
+	.forgetMask .bottomContent .view-group:nth-of-type(2) input {
+		width: 100%;
+	}
+
+	.forgetMask .bottomContent .view-group:nth-of-type(3) {
+		display: flex;
+		justify-content: space-between;
+	}
+
+	.forgetMask .bottomContent .view-group:nth-of-type(3) .groupItem {
+		flex: 1;
+	}
+
+	.forgetMask .bottomContent .view-group:nth-of-type(3) .groupItem {
+		display: flex;
+		justify-content: space-between;
+	}
+
+	/*  */
+	.userInfoMask .topContent {
+		border-top-right-radius: 10px;
+		border-top-left-radius: 10px;
+		background: #00c2ff;
+		height: 150px;
+	}
+
+	.userInfoMask p {
+		margin-top: 5px;
+	}
+
+	.userInfoMask .logoImg,
+	.userInfoMask .accountImg {
+		width: 60px;
+		height: 60px;
+		margin-top: 20px;
+	}
+
+	.bottomContent {
+		color: #333;
+	}
+
+	.userInfoMask .version {
+		margin-top: 10px;
+	}
+
+
+	.accountInfo .bottomContent {
+		width: 100%;
+		margin-top: 20px;
+	}
+
+	.accountInfo .bottomContent .bottomContentItem {
+		display: flex;
+		justify-content: space-between;
+		text-indent: 20px;
+		padding: 10px 20px;
+		margin-bottom: 20px;
+		align-items: center;
+
+	}
+
+	.accountInfo .bottomContent img {
+		width: 15px;
+		height: 15px;
+	}
+
+	.accountInfo .bottomContentItemSmall .phoneImg {
+		width: 15px;
+		height: 25px;
+	}
+
+	.accountInfo .bottomContentItemSmall .idcardImg {
+		width: 25px;
+		height: 20px;
+	}
+
+	.bindText {
+		text-indent: 30px;
+	}
+
+	.accountInfo .bottomContentItemSmall {
+		display: flex;
+		align-items: center;
+	}
+
+	/* 实名认证 */
+	.reconiseInfo .bottomContent {
+		padding: 10px 20px;
+	}
+
+	.reconiseInfo .bottomContent .view-group {
+		width: 98%;
+		height: 40px;
+		line-height: 40px;
+		background: #eee;
+		border-radius: 6px;
+		/* text-indent: 5px;
+		 */
+		padding: 0 5px;
+		margin-top: 10px;
+		display: flex;
+
+	}
+
+	.reconiseInfo .bottomContent .view-group .labelNamt {
+		font-weight: bold;
+		flex: 0 0 45px;
+	}
+
+	.reconiseInfo .bottomContent .view-group input {
+		height: 40px;
+		line-height: 40px;
+		border: none;
+		outline: none;
+		background: #eee;
+		flex: 1;
+	}
+
+	.contactLink {
+		height: 40px;
+		line-height: 40px;
+		border: 1px solid #eee;
+		text-align: center;
+		border-radius: 5px;
+		margin-bottom: 20px;
+	}
+
+	.contactLink a {
+		color: #333;
+		text-decoration: none;
+	}
+
+	.contactLink a:hover {
+		color: #333;
+	}
+</style>

@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8" />
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<title>用户协议</title>
+		<script src="../js/vue.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../js/common.js" type="text/javascript" charset="utf-8"></script>
+		<link rel="stylesheet" type="text/css" href="../css/main.css" />
+		<script src="https://cdn.staticfile.org/vue-resource/1.5.1/vue-resource.min.js"></script>
+		<script src="http://g.tbcdn.cn/mtb/lib-flexible/0.3.2/??flexible_css.js,flexible.js"></script>
+	</head>
+	<body>
+		<div id="app">
+			<div class="fixedTop" @click="returnPage()">
+				<img :src="leftImg" class="leftArrow">
+				<span class="ellipsis-1">用户协议</span>
+			</div>
+			<div class="userContent" v-html="detailContent">
+				
+			</div>
+		</div>
+	</body>
+</html>
+
+
+<script type="text/javascript">
+	var vm = new Vue({
+		el: '#app',
+		data: {
+			leftImg: '../img/left.png',
+			detailContent:''
+		},
+		created() {
+			this.getUserRule()
+		},
+		mounted() {
+			
+		},
+		methods: {
+			returnPage(){
+				window.history.go(-1)
+			},
+			// 获取商品详情get
+			getUserRule() {
+				this.$http.get(apiDomain + 'member/agreement').then(function(res) {
+					this.detailContent = res.body.data.content
+				}, function(res) {
+					console.log('请求失败处理');
+				});
+			},
+			
+		}
+	});
+</script>
+
+<style type="text/css" scoped>
+.fixedTop{
+		position: fixed;
+		top: 0;
+		left: 0;
+		width: 100%;
+		/* height:44px ; */
+		justify-content: center;
+		background: #fff;
+		display: flex;
+		align-items: center;
+		padding:12px 10px ;
+		border-bottom: 1px solid #eee;
+		z-index: 999;
+		font-size: 16px;
+		
+	}
+	.fixedTop img{
+		width: 18px;
+		height:18px;
+		display: block;
+	}
+	
+	.leftArrow{
+		position: absolute;
+		left: 10px;
+	}
+	.userContent{
+		border-top: 1px solid #eee;
+		margin-top: 44px;
+		font-size: 16px;
+		padding: 10px;
+	}
+</style>
