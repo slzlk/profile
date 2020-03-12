@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8" />
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<title>游戏详情</title>
+		<script src="../js/vue.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../js/common.js" type="text/javascript" charset="utf-8"></script>
+		<link rel="stylesheet" type="text/css" href="../css/main.css" />
+		<script src="https://cdn.staticfile.org/vue-resource/1.5.1/vue-resource.min.js"></script>
+		<script src="http://g.tbcdn.cn/mtb/lib-flexible/0.3.2/??flexible_css.js,flexible.js"></script>
+	</head>
+	<body>
+		<div id="app">
+			<div class="fixedTop" @click="returnPage()">
+				<img :src="leftImg" class="leftArrow">
+				<span class="ellipsis-1">{{gameDetail.title.slice(0,20)}}</span>
+			</div>
+			
+			<div class="banner">
+				<img :src="gameDetail.image">
+			</div>
+			<!-- 内容部分 -->
+			<div class="strategyInfo">
+				<div class="trandeInfo">
+					<div class="strategyInfoItem flex font13 black">
+						<div id="">
+							<img :src="gameDetail.image">
+							<p class="font13 black margin-t-1">{{gameDetail.title}}</p>
+							<p class="font10 grey">{{gameDetail.size}}MB</p>
+							<p   @click="goViewDetail(gameDetail.url)" class="installItem">安装</p>
+						</div>
+						<div id="">
+							<div class="titledeac font13 black ">
+								内容摘要
+							</div>
+							<div class=" margin-t-1 lightBlack font12">
+								{{gameDetail.sellPoint}}
+							</div>
+						</div>
+					</div>
+					<div class="introdeInfo">
+						<p class="black font13">游戏介绍</p>
+						<div class="margin-t-1 detailInfo" v-html="gameDetail.detail">
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</body>
+</html>
+
+
+<script type="text/javascript">
+	var vm = new Vue({
+		el: '#app',
+		data: {
+			leftImg: '../img/left.png',
+			id: '',
+			gameDetail: ''
+		},
+		created() {
+			this.id = getQueryString('id')
+			// this.title = getQueryString('id')
+		},
+		mounted() {
+			// 获取商品详情
+			this.getGoodsInfo()
+		},
+		methods: {
+			returnPage(){
+				window.history.go(-1)
+			},
+			// 获取商品详情get
+			getGoodsInfo() {
+				this.$http.get(apiDomain + 'products/' + this.id + '').then(function(res) {
+					this.gameDetail = res.body.result
+				}, function(res) {
+					console.log('请求失败处理');
+				});
+			},
+			// 安装
+			goViewDetail(url){
+				window.location.href='insertBefore.html?url='+url
+			}
+		}
+	});
+</script>
+
+<style type="text/css" scoped>
+	#app {
+
+		height: 100vh;
+	
+
+	}
+	.fixedTop{
+		position: fixed;
+		top: 0;
+		left: 0;
+		width: 100%;
+		/* height:44px ; */
+		justify-content: center;
+		background: #fff;
+		display: flex;
+		align-items: center;
+		padding:12px 10px ;
+		border-bottom: 1px solid #F4F4F4;
+		z-index: 999;
+		
+	}
+	.fixedTop img{
+		width: 18px;
+		height:18px;
+		display: block;
+	}
+	
+	.leftArrow{
+		position: absolute;
+		left: 10px;
+	}
+
+	/* banner */
+	.banner {
+		padding: 0 !important;
+	}
+
+	.banner img {
+
+		width: 100%;
+		height: 250px;
+	}
+
+
+	/* 内容 */
+
+	.strategyInfo {
+		margin-top: 10px;
+		background: #f4f4f4;
+		/* padding: 0 10px; */
+		border-radius: 15px;
+	
+	}
+
+	.trandeInfo {
+		background: #fff;
+		/* margin-top: 10px; */
+		padding: 0 15px;
+			
+	}
+
+	.strategyInfoItem img {
+		width: 70px;
+		height: 74px;
+
+		box-shadow: 3px 4px 17px 1px rgba(181, 181, 181, 1);
+		border-radius: 5px;
+		margin-right: 15px;
+	}
+
+	.introdeInfo {
+		margin-top: 25px;
+		font-size: 12px;
+		color: #666;
+	}
+	.detailInfo img{
+		width: 100%;
+		height: 100%;
+		margin-top: 10px;
+	}
+	.detailInfo p{
+		margin-bottom: 10px;
+		font-size: 12px !important;
+		color: #666 !important;
+	}
+	.installItem {
+		display: inline-block;
+	}
+</style>

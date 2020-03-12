@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8" />
+		<!-- application/json -->
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+		<meta http-equiv="Access-Control-Allow-Origin"  content="*">
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<title>{{title}}</title>
+		<script src="../js/vue.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../js/common.js" type="text/javascript" charset="utf-8"></script>
+		<link rel="stylesheet" type="text/css" href="../css/main.css" />
+		<script src="https://cdn.staticfile.org/vue-resource/1.5.1/vue-resource.min.js"></script>
+		<script src="http://g.tbcdn.cn/mtb/lib-flexible/0.3.2/??flexible_css.js,flexible.js"></script>
+		<!-- <script src="https://code.jquery.com/jquery-2.2.4.js" integrity="sha256-iT6Q9iMJYuQiMWNd9lDyBUStIq/8PuOW33aOqmvFpqI="
+		 crossorigin="anonymous"></script> -->
+	</head>
+	<body>
+		<div id="appInfo">
+		
+			<iframe :src="url" name="iframe2" id="frameObj" scrolling="no" frameborder="0" width="100%" :height="height"></iframe>
+			<div class="font18 margin-t-2 installItem margin-l-05" @click="returnPage">返回</div>
+		</div>
+	</body>
+</html>
+<script type="text/javascript">
+	var vm = new Vue({
+		el: '#appInfo',
+		data: {
+			url: '',
+			height: '',
+			title:'流连互娱'
+		},
+		created() {
+			this.url = getQueryString('url')
+			this.title = getQueryString('title')
+			
+		},
+		mounted() {
+			window.document.title = decodeURI(this.title )
+			let _this = this
+			function reinitIframe() {
+				var iframe = document.getElementById("frameObj");
+				try {
+					var bHeight = iframe.contentWindow.document.body.scrollHeight;
+					var dHeight = iframe.contentWindow.document.documentElement.scrollHeight;
+					var height = Math.min(bHeight, dHeight);
+					_this.height = height;
+					// console.log(iframe.contentWindow);
+					//  console.log(bHeight,dHeight);
+				} catch (ex) {
+					// console.log(ex)
+					_this.height = 1000
+				}
+			};
+			setInterval(reinitIframe, 100);
+		},
+
+		methods: {
+			// 返回
+			returnPage(url){
+				window.history.go(-1)
+			}
+
+
+		}
+	});
+</script>
+
+
+<script type="text/javascript">
+	// $("#frameObj").on("load",function(){//iframe加载完后 高度自适应。
+	// var frameObj = document.getElementById("frameObj").contentDocument || document.getElementById("frameObj").contentWindow.document
+	// mainWrapHeight = $(window).height() - 49 - 21,         
+	//     frame_height = frameObj.documentElement.scrollHeight;  
+
+	// $("#frameObj").height( frame_height < 610 ? mainWrapHeight : frame_height);
+	// });
+</script>
+<style type="text/css" scoped>
+	#appInfo {
+		height: 100vh;
+		
+	}
+	.installItem{
+		/* margin-bottom: 20px; */
+		margin: 20px auto;
+	}
+</style>

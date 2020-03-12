@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8" />
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<title>游戏</title>
+		<script src="../js/vue.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../js/common.js" type="text/javascript" charset="utf-8"></script>
+		<link rel="stylesheet" type="text/css" href="../css/main.css" />
+		<script src="https://cdn.staticfile.org/vue-resource/1.5.1/vue-resource.min.js"></script>
+		<script src="http://g.tbcdn.cn/mtb/lib-flexible/0.3.2/??flexible_css.js,flexible.js"></script>
+	</head>
+	<body>
+		<div id="app">
+			<div class="fixedTop" @click="returnPage()">
+				<img :src="leftImg" class="leftArrow">
+				<span>{{title}}</span>
+			</div>
+			<!-- 内容部分 -->
+			<div class="mainInfo">
+				<!-- 精选游戏 -->
+				<div class="mainContent">
+					<!-- title -->
+					<div class="title">
+						<div class="titleItem black">
+							<img class="hotImg" :src="hotImg">
+							{{title}}
+						</div>
+
+					</div>
+
+					<!--  -->
+					<div class="selectedInfo">
+						<div class="selectedInfoItem" v-for="item of gameProductsInfo">
+							<img :src="item.image" @click="seeGameDetail(item.id)">
+							<p class="black font13 ellipsis-1" @click="seeGameDetail(item.id)">{{item.title}}</p>
+							<p class="grey font10" @click="seeGameDetail(item.id)">{{item.size}}MB</p>
+							<p class="installItem" @click="goViewDetail(item.url)">安装</p>
+						</div>
+					</div>
+					<div class="loading center margin-t-2" v-if="pageCount > 1">
+						{{isLoadText}}
+					</div>
+				</div>
+			</div>
+		</div>
+	</body>
+</html>
+<script type="text/javascript">
+	var vm = new Vue({
+		el: '#app',
+		data: {
+			id:'',
+			keyWord:'',
+			pageIndex: 1,
+			pageCount:0,
+			size: 10,
+			title: '热门游戏',
+			awardImg: '../img/award.png',
+			leftImg: '../img/left.png',
+			hotImg: '../img/hot.png',
+			goodsImg: '../img/goods.jpg',
+			gameProductsInfo:[],
+			isLoadText:'上拉加载更多'
+		},
+		created() {
+			this.id = getQueryString('id')
+			this.isMore()
+		},
+		mounted() {
+			this.getProductsInfo()
+		},
+		methods: {
+			returnPage(){
+				window.history.go(-1)
+			},
+			// 安装
+			goViewDetail(url){
+				window.location.href='insertBefore.html?url='+url
+			},
+			// 查看游戏详情
+			seeGameDetail(id){
+				window.location.href='gameDetail.html?id='+id
+			},
+			// 精选游戏
+			getProductsInfo() {
+				let data = {
+				  "cid": -1,
+				  "page": this.pageIndex,
+				  "query": '',
+				  "size": this.size
+				}
+				this.$http.post(apiDomain + 'products/query',data).then(function(res) {
+					if (this.pageIndex === 1) {
+						this.gameProductsInfo = res.body.result.data
+					} else {
+						this.gameProductsInfo = this.gameProductsInfo.concat(res.body.result.data);
+					}
+					this.pageCount = res.body.result.total / this.size;
+				}, function(res) {
+					console.log(res.status);
+				});
+			},
+			isMore() {
+				window.addEventListener('scroll', () => {
+					let scrollTop = document.documentElement.scrollTop || document.body.scrollTop;
+					let clientHeight = document.documentElement.clientHeight || document.body.clientHeight;
+					let scrollHeight = document.documentElement.scrollHeight || document.body.scrollHeight;
+					if (scrollTop + clientHeight == scrollHeight) {
+						if (this.pageIndex > this.pageCount) {
+							this.isLoadText = '没有更多数据';
+						} else {
+							this.isLoadText = '加载中...';
+							this.pageIndex++
+							this.getProductsInfo()
+						}
+					}
+				})
+			}
+
+		}
+	});
+</script>
+
+<style type="text/css" scoped>
+	#app {
+		background: #f4f4f4 !important;
+		/* margin: 0 10px; */
+		height: 100%;
+		padding: 0 10px;
+	}
+
+	.fixedTop{
+		position: fixed;
+		top: 0;
+		left: 0;
+		width: 100%;
+		/* height:44px ; */
+		justify-content: center;
+		background: #fff;
+		display: flex;
+		align-items: center;
+		padding:12px 10px ;
+		border-bottom: 1px solid #F4F4F4;
+		z-index: 999;
+		
+	}
+	.fixedTop img{
+		width: 18px;
+		height:18px;
+		display: block;
+	}
+	
+	.leftArrow{
+		position: absolute;
+		left: 10px;
+	}
+
+
+	/* 内容部分 */
+	.mainInfo {
+		background: #fff;
+		padding: 15px 15px 30px;
+		border-radius: 10px;
+	
+		height: 100vh;
+	}
+
+
+
+
+	/*  */
+	.title {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+	}
+
+
+
+	.title .hotImg {
+		width: 15px;
+		height: 15px;
+		margin-right: 5px;
+	}
+
+	.title .moreImg {
+		width: 10px;
+		height: 10px;
+		margin-left: 5px;
+	}
+
+
+
+	/*  */
+	.selectedInfo {
+		width: 100%;
+		/* display: flex; */
+	}
+
+	.selectedInfoItem {
+		width: 33%;
+		/* float: left; */
+		text-align: center;
+		display: inline-block;
+		margin-top: 25px;
+	}
+
+	.selectedInfoItem img {
+		width: 70px;
+		height: 70px;
+		margin-bottom: 10px;
+		border-radius: 10px;
+		flex: 0 0 70px;
+		box-shadow:3px 4px 17px 1px rgba(181,181,181,1);
+	}
+
+	.selectedInfoItem .installItem {
+		display: inline-block;
+		width: 70px;
+		height: 20px;
+		background: linear-gradient(0deg, rgba(58, 209, 227, 1) 0%, rgba(152, 115, 220, 1) 99%);
+		border-radius: 4px;
+		color: #fff;
+		font-size: 15px;
+		margin-top: 10px;
+	}
+</style>

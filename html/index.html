@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8" />
+		<!-- application/json -->
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+		<meta http-equiv="Access-Control-Allow-Origin" content="*">
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<title>流连互娱</title>
+		<script src="../js/vue.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../js/common.js" type="text/javascript" charset="utf-8"></script>
+		<link rel="stylesheet" type="text/css" href="../css/main.css" />
+		<link rel="stylesheet" type="text/css" href="../css/swiper.min.css" />
+		<script src="../js/swiper.min.js" type="text/javascript" charset="utf-8"></script>
+		<script src="https://cdn.staticfile.org/vue-resource/1.5.1/vue-resource.min.js"></script>
+		<script src="http://g.tbcdn.cn/mtb/lib-flexible/0.3.2/??flexible_css.js,flexible.js"></script>
+	
+	</head>
+	<body>
+		<div id="app">
+			<div class="fixedTop">
+				<img :src="leftImg" class="leftArrow">
+				<span>流连互娱</span>
+			</div>
+			<!-- 头部 -->
+			<div class="headerInfo">
+				<div class="headerSearch">
+					<div class="searchWrap">
+						<img :src="searchImg" class="searchIcon">
+						<input type="search" v-model="keyWord" @keyup="searchData($event)" placeholder="搜索您喜欢的游戏" lang="zh-CN">
+					</div>
+					
+					<div class="mainColor type">全部游戏</div>
+				</div>
+				<!-- 搜索内容 -->
+				<!-- <div class="searchContent" v-show="keyWord">
+					<p v-for="item of searchInfo">
+						<a :href="activeIndex === 1 ? 'stracyDetail.html' : 'gameDetail.html'">{{item.title}}</a>
+					</p>
+				</div> -->
+				<!--  -->
+				<div class="banner">
+					<div class="swiper-container" :circular="true">
+						<div class="swiper-wrapper">
+							<div class="swiper-slide" v-for="item of bannerInfo" >
+								<img :src="item.image">
+							</div>
+						</div>
+						<!-- Add Pagination -->
+						<!-- <div class="swiper-pagination"></div> -->
+					</div>
+
+				</div>
+			</div>
+			<!-- 内容部分 -->
+			<div class="mainInfo">
+				<!-- tab切换 -->
+				<div class="switchTab">
+					<div class="switchItem" @click="tabSwitch(item.value)" 
+					 v-for="(item,index) of list">
+						{{item.name}}
+						
+						<span :class="activeIndex == item.value ? 'active' : ''"></span>
+					</div>
+
+				</div>
+				<!-- 精选游戏 -->
+				<div class="mainContent" v-if="activeIndex === 0">
+					<div class="title ">
+						<div class="titleItem black">
+							<img class="hotImg" :src="hotImg">
+							热门游戏
+						</div>
+						<a class="titleItem lightBlack" href="moreGame.html">
+							更多
+							<img class="moreImg" :src="arrowImg">
+						</a>
+					</div>
+
+					<!--  -->
+					<div class="selectedInfo">
+						<div class="selectedInfoItem" v-for="item of gameProductsInfo">
+							<img :src="item.image" @click="seeGameDetail(item.id)">
+							<p class="black font13 ellipsis-1" @click="seeGameDetail(item.id)">{{item.title}}</p>
+							<p class="grey font10" @click="seeGameDetail(item.id)">{{item.size}}MB</p>
+							<a class="installItem" @click="goViewDetail(item.url,item.title)"  >安装</a>
+						</div>
+					</div>
+				</div>
+				<!-- 游戏攻略 -->
+				<div class="mainContent" v-if="activeIndex === 1">
+					<!-- title -->
+					<div class="title">
+						<div class="titleItem black">
+							<img class="hotImg" :src="descripImg">
+							游戏攻略
+						</div>
+						<a class="titleItem lightBlack" href="moreStrac.html">
+							更多
+							<img class="moreImg" :src="arrowImg">
+						</a>
+					</div>
+					<!--  -->
+
+					<div class="strategyInfo">
+						<div class="strategyInfoItem flex font13 black" @click="seeStraDetail(item.id)" v-for="item of newsInfo">
+							<img :src="item.image">
+							<div class="strategyInfoItemSmall">
+								<div class="titledeac bold">
+									{{item.title}}
+								</div>
+								<div class="titledeac margin-t-1 ellipsis-2">
+									{{item.detail}}
+								</div>
+								<div class="flex margin-t-1 timeSrc grey font10">
+									<div class="ellipsis-1 info">
+										{{item.info}}
+									</div>
+									<div class="time">
+									
+										{{item.created.slice(0,10)}}
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</body>
+</html>
+<script type="text/javascript">
+	var vm = new Vue({
+		el: '#app',
+		data: {
+			keyWord:'',
+			pageIndex: 1, // 当前
+			size: 6,
+			activeIndex: 0,
+			currentIndex:0,
+			arrowImg: '../img/arrow.png',
+			leftImg: '../img/left.png',
+			searchImg: '../img/search.png',
+			awardImg: '../img/award.png',
+			hotImg: '../img/hot.png',
+			goodsImg: '../img/goods.jpg',
+			descripImg: '../img/descrip.png',
+			bannerInfo:[], // 轮播
+			gameProductsInfo:[],// 精选游戏
+			newsInfo:[],// 游戏攻略
+			list: [{
+				name: '精选游戏',
+				value: 0
+			}, {
+				name: '游戏攻略',
+				value: 1
+			}]
+		},
+		created() {
+			// 精选游戏
+			this.getProductsInfo()
+			// 游戏攻略
+			this.getNewsInfo()
+		},
+		mounted() {
+			this.initSwiper()
+			this.getBannerData()
+		},
+		
+		methods: {
+			tabSwitch(value){
+				this.activeIndex =  value
+				this.keyWord = ''
+				if(this.activeIndex === 1){
+					this.getNewsInfo()
+				} else {
+					this.getProductsInfo()
+				}
+				this.getBannerData()
+			},
+			// 搜索
+			searchData(e){
+				if(this.activeIndex === 1){
+					this.getNewsInfo()
+				} else {
+					this.getProductsInfo()
+				}
+			},
+			
+			
+			// 初始化轮播
+			initSwiper() {
+				let _this = this
+				var swiper = new Swiper('.swiper-container', {
+					spaceBetween: 30,
+					autoplay: {
+						delay: 2500,
+						disableOnInteraction: false,
+					},
+				
+					pagination: {
+						el: '.swiper-pagination',
+						clickable: true,
+					},
+					observer: true, 
+					observeParents: true,
+					 on: {
+						 tap: function(swiper,event){
+						   console.log(_this.currentIndex)
+						    // window.location.href = url;
+						 },
+					     slideChangeTransitionStart: function(){
+						   _this.currentIndex = this.activeIndex
+					     },
+					   },
+				});
+			},
+			
+			// 获取轮播数据
+			getBannerData () {
+				this.$http.get(apiDomain + 'banner/list/'+(this.activeIndex+1)+'').then(function(res) {
+					this.bannerInfo = res.body
+				}, function(res) {
+				
+				});
+			},
+			// 安装
+			goViewDetail(url,title){
+				window.location.href='insertBefore.html?url='+url+'&title='+title
+			},
+			
+			// 精选游戏
+			getProductsInfo() {
+				let data = {
+				  "cid": -1,
+				  "page": this.pageIndex,
+				  "query": this.keyWord,
+				  "size": 12
+				}
+				this.$http.post(apiDomain + 'products/query',data).then(function(res) {
+					this.gameProductsInfo = res.body.result.data
+				}, function(res) {});
+			},
+			// 查看游戏详情
+			seeGameDetail(id){
+				window.location.href='gameDetail.html?id='+id
+			},
+			// 游戏攻略
+			getNewsInfo() {
+				let data = {
+				  "page": this.pageIndex,
+				  "query": this.keyWord,
+				  "size": this.size
+				}
+				this.$http.post(apiDomain + 'news/query',data).then(function(res) {
+					// console.log(res)
+					this.newsInfo =  res.body.result.data
+					
+				}, function(res) {
+					// console.log(res.status);
+				});
+			},
+			// 查看攻略详情
+			seeStraDetail(id){
+				window.location.href='stracyDetail.html?id='+id
+			}
+			
+		}
+	});
+</script>
+
+<style type="text/css" scoped>
+	#app {
+		background: #f4f4f4 !important;
+		/* margin: 0 10px; */
+		height: 100%;
+		padding: 0 10px;
+		padding-bottom: 10px;
+	}
+	.fixedTop{
+		position: fixed;
+		top: 0;
+		left: 0;
+		width: 100%;
+		/* height:44px ; */
+		justify-content: center;
+		background: #fff;
+		display: flex;
+		align-items: center;
+		padding:12px 10px ;
+		border-bottom: 1px solid #F4F4F4;
+		z-index: 999;
+		
+	}
+	.fixedTop img{
+		width: 18px;
+		height:18px;
+		display: block;
+	}
+	
+	.leftArrow{
+		position: absolute;
+		left: 10px;
+	}
+	.headerInfo {
+		margin-top: 44px;
+		color: #999;
+		background: #fff;
+		font-size: 13px;
+		padding: 15px;
+		border-radius: 10px;
+		position: relative;
+	}
+	
+	.headerSearch {
+		margin-bottom: 15px;
+		display: flex;
+	}
+
+	.searchWrap {
+		flex: 1;
+		margin-right: 9px;
+		position: relative;
+	}
+	
+	.searchIcon {
+		width: 15px;
+		height: 15px;
+		position: absolute;
+		top: 5px;
+		left: 20px;
+
+	}
+
+	.headerSearch input {
+		width: 100%;
+		height: 25px;
+		line-height: 25px;
+		text-indent: 40px;
+		border-radius: 12px;
+		border: none;
+		outline: none;
+		border: 1px solid #999;
+	}
+
+	.type {
+		flex: 0 0 76px;
+		font-size: 18px;
+		text-decoration: underline;
+	}
+	/* 搜索内容 */
+	.searchContent{
+		width: calc(100% - 40px);
+		position: absolute;
+		top: 45px;
+		background: #fff;
+		z-index: 999;
+		padding: 10px;
+		height: 100px;
+		overflow-y: auto;
+	
+		box-shadow:2px 4px 5px 1px rgba(181,181,181,1);
+		border-radius: 10px;
+		
+	}
+	.searchContent p{
+		margin-bottom: 10px;
+		color: #007AFF;
+		
+	}
+	.searchContent p a{
+		width: 100%;
+		height: 100%;
+		display: block;
+		text-decoration: underline;
+	}
+	
+	.banner img {
+		border-radius: 10px;
+		width: 100%;
+		height: 140px;
+	}
+
+	.banner .swiper-container {
+		width: 100%;
+		height: 100%;
+
+	}
+
+	.banner .swiper-slide {
+		text-align: center;
+		font-size: 18px;
+		background: #fff;
+
+		/* Center slide text vertically */
+		display: -webkit-box;
+		display: -ms-flexbox;
+		display: -webkit-flex;
+		display: flex;
+		-webkit-box-pack: center;
+		-ms-flex-pack: center;
+		-webkit-justify-content: center;
+		justify-content: center;
+		-webkit-box-align: center;
+		-ms-flex-align: center;
+		-webkit-align-items: center;
+		align-items: center;
+	}
+
+
+	/* 内容部分 */
+	.mainInfo {
+		background: #fff;
+		padding: 15px 15px 30px;
+		border-radius: 10px;
+		margin-top: 10px;
+		
+		height: 100%;
+	}
+
+	.switchTab {
+		display: flex;
+
+		font-size: 15px;
+		padding: 5px 50px 20px;
+	}
+
+	.switchItem:nth-of-type(1) {
+		margin-right: 50px;
+	}
+
+	.switchItem {
+		flex: 1;
+		color: #8360C3;
+		/* height: 20px; */
+		text-align: center;
+
+	}
+
+	.active {
+		display: inline-block;
+		width:70%;
+		height:3px;
+		background:rgba(131,96,195,1);
+		border-radius:3px;
+	}
+
+
+
+	/*  */
+	.title {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+	}
+
+	.hotTitle {
+		margin-top: 40px;
+		padding-bottom: 15px;
+		border-bottom: 1px solid #F4F4F4;
+	}
+
+	.title .hotImg {
+		width: 15px;
+		height: 15px;
+		margin-right: 5px;
+	}
+
+	.title .moreImg {
+		width: 10px;
+		height: 10px;
+		margin-left: 5px;
+	}
+
+
+
+	/*  */
+	.selectedInfo {
+		width: 100%;
+		/* display: flex; */
+	}
+
+	.selectedInfoItem {
+		width: 33%;
+		/* float: left; */
+		text-align: center;
+		display: inline-block;
+		margin-top: 25px;
+	}
+
+	.selectedInfoItem img {
+		width: 70px;
+		height: 70px;
+		margin-bottom: 10px;
+		border-radius: 10px;
+		box-shadow: 3px 4px 17px 1px rgba(181, 181, 181, 1);
+	}
+
+	.selectedInfoItem .installItem {
+		display: inline-block;
+
+	}
+
+
+	/* 游戏攻略 */
+	.strategyInfoItem {
+		margin-top: 25px;
+		align-items: center;
+	}
+
+	.strategyInfoItem img {
+		width: 70px;
+		height: 70px;
+		flex: 0 0 70px;
+		border-radius: 10px;
+		margin-right: 15px;
+		box-shadow: 3px 4px 17px 1px rgba(181, 181, 181, 1);
+	}
+	.strategyInfoItemSmall{
+		flex: 1;
+	}
+	.timeSrc {
+		justify-content: space-between;
+	}
+	.timeSrc .info{
+		flex: 1;
+		margin-right: 20px;
+	}
+	.timeSrc .time{
+		flex: 0 0 80px;
+		
+	}
+</style>

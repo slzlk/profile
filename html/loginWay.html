@@ -1,0 +1,707 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8" />
+		<!-- application/json -->
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+		<meta http-equiv="Access-Control-Allow-Origin"  content="*">
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<title>流连互娱</title>
+		<script src="../js/vue.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../js/common.js" type="text/javascript" charset="utf-8"></script>
+		<link rel="stylesheet" type="text/css" href="../css/main.css" />
+		<script src="https://cdn.staticfile.org/vue-resource/1.5.1/vue-resource.min.js"></script>
+		<script src="http://g.tbcdn.cn/mtb/lib-flexible/0.3.2/??flexible_css.js,flexible.js"></script>
+
+
+	</head>
+	<body>
+		<div id="app">
+			<div id="" @click="isShowWay = true">请登录</div>
+			<!--  遮层-->
+			<div class="maskInfo" v-if="isShowWay || isPhoneLogin || isPassLogin || isFindPass || isRetPass"> </div>
+			<div class="userInfoMask commonMask" v-if="isShowWay">
+				<div class="headerTite">
+					<span>请选择登录方式</span>
+					<img :src="closeImg" class="closeImg" @click="isShowWay = false" />
+				</div>
+				<div class="bottomContentWay">
+					<div id="" @click="isShowWay = false,isPhoneLogin = true">
+						<img :src="accountImg" class="accountImg">
+						<p>手机登录</p>
+					</div>
+					<div id="" @click="isShowWay = false,isPassLogin = true">
+						<img :src="accountImg" class="accountImg">
+						<p>账号登录</p>
+					</div>
+				</div>
+			</div>
+
+
+
+			<!-- 绑定手机号 -->
+			<div class="pboneInfo commonMask" v-if="isPhoneLogin">
+				<div class="headerTite">
+					<span>手机登录</span>
+					<img :src="closeImg" class="closeImg" @click="isPhoneLogin = false" />
+				</div>
+				<div class="bottomContent ">
+					<div class="view-group">
+						<image :src="phoneImg" mode="" />
+						<div class="phoneInput groupItem">
+							<input onkeyup="this.value=this.value.replace(/\D/g,'')" onafterpaste="this.value=this.value.replace(/\D/g,'')"
+							 placeholder-style="color:#999" type="text" maxlength="11" name="mobile" v-model="mobile" placeholder="请输入手机号码" />
+						</div>
+					</div>
+					<div class="view-group">
+						<image :src="codeImg" mode="" />
+						<div class="groupItem">
+							<input class="codeInput" maxlength="6" placeholder-style="color:#999" type="text" name="code" v-model="code"
+							 placeholder="请输入验证码" />
+							<div class="getcodeAll selectColor" @click="getCode" :disabled="countdown < 60 && countdown >= 1">
+								{{ countdown < 60 && countdown >= 1 ? `${countdown}秒后可重发` : '获取验证码' }}
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="bindPhone" @click="phoneUserPhone()">手机号登录</div>
+			</div>
+			<!-- 账号密码登录 -->
+			<div class="pboneInfo commonMask" v-if="isPassLogin">
+				<div class="headerTite">
+					<span>快捷登录</span>
+					<img :src="closeImg" class="closeImg" @click="isPassLogin = false" />
+				</div>
+				<div class="bottomContent ">
+					<div class="view-group">
+						<image :src="phoneImg" mode="" />
+						<div class="phoneInput groupItem">
+							<input placeholder-style="color:#999" type="text" name="uname" v-model="uname" placeholder="账号" />
+						</div>
+					</div>
+					<div class="view-group">
+						<image :src="codeImg" mode="" />
+						<div class="groupItem">
+							<input class="codeInput" placeholder-style="color:#999" type="password" name="pwd" v-model="pwd" placeholder="密码" />
+							<!-- <div class="getcodeAll " ></div> -->
+							<div class="selectColor" @click="isPassLogin = false,isFindPass = true">忘记密码?</div>
+						</div>
+					</div>
+				</div>
+				<div class="bindPhone" @click="userPassLogin()">登录</div>
+				<div class="register" @click="isUserResign = true">注册</div>
+			</div>
+
+			<!-- 注册 -->
+			<div class="resigetInfo commonMask" v-if="isUserResign">
+				<div class="headerTite">
+					<span>注册</span>
+					<img :src="closeImg" class="closeImg" @click="isUserResign = false" />
+				</div>
+				<div class="bottomContent ">
+					<div class="view-group">
+
+						<div class="imageWrap">
+							<image :src="phoneImg" mode="" />
+						</div>
+						<input placeholder-style="color:#999" type="text" name="myName" v-model="myName" placeholder="账号" />
+
+					</div>
+					
+					<div class="view-group">
+						<div class="imageWrap">
+							<image :src="codeImg" mode="" />
+						</div>
+
+
+						<input placeholder-style="color:#999" type="password" name="myPass" v-model="myPass" placeholder="密码" />
+					</div>
+				</div>
+				<div class="bindPhone" @click="registAcount()">登录</div>
+
+			</div>
+
+			<!-- 找回密码 -->
+			<div class="pboneInfo commonMask" v-if="isFindPass">
+				<div class="headerTite">
+					<span>找回密码</span>
+					<img :src="closeImg" class="closeImg" @click="isFindPass = false" />
+				</div>
+				<div class="bottomContent ">
+					<div class="view-group">
+						<image :src="phoneImg" mode="" />
+						<div class="phoneInput groupItem">
+							<input onkeyup="this.value=this.value.replace(/\D/g,'')" onafterpaste="this.value=this.value.replace(/\D/g,'')"
+							 placeholder-style="color:#999" type="text" maxlength="11" name="findPhone" v-model="findPhone" placeholder="请输入绑定的手机号码" />
+						</div>
+					</div>
+					
+					<div class="view-group">
+						<image :src="codeImg" mode="" />
+						<div class="groupItem">
+							<input class="codeInput" maxlength="6" placeholder-style="color:#999" type="text" name="newCode" v-model="newCode"
+							 placeholder="请输入验证码" />
+							<div class="getcodeAll selectColor" @click="getForgetCode" :disabled="countdownNew < 60 && countdownNew >= 1">
+								{{ countdownNew < 60 && countdownNew >= 1 ? `${countdownNew}秒后可重发` : '获取验证码' }}
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="bindPhone" @click="nextTip()" >下一步</div>
+			</div>
+			
+			<div class="pboneInfo commonMask" v-if="isRetPass">
+				<div class="headerTite">
+					<span>重置密码</span>
+					<img :src="closeImg" class="closeImg" @click="isRetPass = false" />
+				</div>
+				<div class="bottomContent ">
+					<div class="view-group">
+						<image :src="phoneImg" mode="" />
+						<div class="phoneInput groupItem">
+							<input 
+							 placeholder-style="color:#999" type="password" name="newPass" v-model="newPass" placeholder="请输入新的密码" />
+						</div>
+					</div>
+					
+					
+				</div>
+				<div class="bindPhone" @click="resetPass()">重置成功</div>
+			</div>
+
+		</div>
+	</body>
+</html>
+
+<script type="text/javascript">
+	var vm = new Vue({
+		el: '#app',
+		data: {
+			isShowWay: false, //登录方式
+			isPhoneLogin: false, // 手机号登录
+			isPassLogin: false, //账号登录
+			isUserResign: false, //注册
+			isFindPass: false, // 找回密码
+			isRetPass:false,
+			findPhone: '', // 找回密码绑定的手机
+			newCode: '', //找回密码绑定的手机验证码
+			newPass:'',
+			mobile: '', // 手机号
+			code: '', // 验证码
+			uname: '',
+			pwd: '',
+			userInfo: '',
+			// 
+			myName: '',
+			myPass: '',
+
+			pass: '', // 重置密码
+			countdown: 60,
+			countdownNew:60,
+			phoneImg: '../img/phone.png', // 手机号
+			codeImg: '../img/code.png', // 验证码
+			closeImg: '../img/close.png', // 关闭
+			idcardImg: '../img/idcard.png', // 实名认证
+			arrowImg: '../img/arrow.png', // 箭头
+			logoImg: '../img/logo.png', // logo
+			accountImg: '../img/account.png', // 账户
+			returnImg: '../img/return.png', // 返回
+			
+
+		},
+		created() {
+			// 
+			this.userInfo = localStorage.getItem('userInfo') ? JSON.parse(localStorage.getItem('userInfo')) : ''
+			console.log(this.userInfo.uid)
+			this.userInfo.uid ? '' : this.getFastreg(),
+				this.uname = this.userInfo.uname
+			this.pwd = this.userInfo.pwd
+		},
+		mounted() {
+
+		},
+
+		methods: {
+			// 获取随机账号
+			getFastreg() {
+				this.$http.get(apiDomain + 'member/fastreg').then(function(res) {
+					console.log(res)
+					this.uname = res.body.data.uname
+					this.pwd = res.body.data.pwd
+				}, function(res) {
+
+				});
+			},
+			// 注册账号(用户名注册)
+			registAcount() {
+				if (!this.myName) {
+					alert("请输入用户名");
+					return false;
+				}
+				// if(this.myName.length < 4 || this.myName.length > 8){
+				// 	alert("用户名长度在4~8");
+				// 	return false;
+				// }
+				if (!this.myPass) {
+					alert("请输入密码");
+					return false;
+				}
+				// if(this.myPass.length  < 6){
+				// 	alert("请输入6位密码");
+				// 	return false;
+				// }
+				let data = {
+					"uname": this.myName,
+					"pwd": this.myPass,
+					'reg_type': '1',
+					'os': 'h5'
+				}
+				this.$http.post(apiDomain + 'member/login', data).then(function(res) {
+					// this.countDown()
+
+					alert(res.body.msg)
+					console.log(res.body)
+					// 注册成功后存储用户信息
+					localStorage.setItem('userInfo', JSON.stringify(res.body.data))
+					// let uname = localStorage.getItem('uname')
+					// console.log(uname)
+				}, function(res) {
+					// console.log(res.status);
+				});
+			},
+			// 用户名登录 || 随机账号登录
+			userPassLogin() {
+				if (!this.uname) {
+					alert("请输入用户名");
+					return false;
+				}
+
+				if (!this.pwd) {
+					alert("请输入密码");
+					return false;
+				}
+				let data = {
+					"uname": this.uname,
+					"pwd": this.pwd,
+					'reg_type': '2',
+					'os': 'h5'
+					// 	string 注册类型,1：用户名注册，2：随机注册，3：短信登录
+				}
+				this.$http.post(apiDomain + 'member/login', data).then(function(res) {
+					// this.countDown()
+					alert(res.body.msg)
+				}, function(res) {
+					// console.log(res.status);
+				});
+			},
+			// 倒计时
+			countDown() {
+				if (this.countdown < 60 && this.countdown >= 1) {
+					return;
+				}
+
+				let self = this;
+				self.countdown = 60;
+				self.countdown -= 1;
+				if (self.clear) {
+					clearInterval(self.clear);
+				}
+				self.clear = null;
+				self.clear = setInterval(_ => {
+					if (self.countdown > 0) {
+						self.countdown -= 1;
+					} else {
+						clearInterval(self.clear);
+					}
+				}, 1000);
+			},
+			countDownNew() {
+				if (this.countdownNew < 60 && this.countdownNew >= 1) {
+					return;
+				}
+			
+				let self = this;
+				self.countdownNew = 60;
+				self.countdownNew -= 1;
+				if (self.clear) {
+					clearInterval(self.clear);
+				}
+				self.clear = null;
+				self.clear = setInterval(_ => {
+					if (self.countdownNew > 0) {
+						self.countdownNew -= 1;
+					} else {
+						clearInterval(self.clear);
+					}
+				}, 1000);
+			},
+			// 获取验证码
+			getCode() {
+				if (!this.mobile) {
+					alert("请输入手机号");
+					return false;
+				}
+				if (!(/^1(3|4|5|7|8)\d{9}$/.test(this.mobile))) {
+					alert("手机号码有误，请重新输入");
+					return false;
+				}
+				// 发送验证码
+				if (this.countdown < 60 && this.countdown >= 1) {
+					return
+				}
+				let data = {
+					"phone": this.mobile
+				}
+				this.$http.post(apiDomain + 'member/code', data).then(function(res) {
+					this.countDown()
+					console.log(res)
+					alert(res.body.msg)
+				}, function(res) {
+					// console.log(res.status);
+				});
+			},
+			// 手机号登录
+			phoneUserPhone() {
+				console.log('绑定手机')
+				if (!this.mobile) {
+					alert("请输入手机号");
+					return false;
+				}
+				if (!(/^1(3|4|5|7|8)\d{9}$/.test(this.mobile))) {
+					alert("手机号码有误，请重新输入");
+					return false;
+				}
+				if (!this.code) {
+					alert("请输入验证码");
+					return false;
+				}
+				let data = {
+					"phone": this.mobile,
+					"code": this.code,
+					'reg_type': '3',
+					'os': 'h5'
+				}
+				this.$http.post(apiDomain + 'member/login', data).then(function(res) {
+					// this.countDown()
+					alert(res.body.msg)
+				}, function(res) {
+					// console.log(res.status);
+				});
+			},
+			// 忘记密码 发送验证码
+			getForgetCode(){
+				if (!this.findPhone) {
+					alert("请输入手机号");
+					return false;
+				}
+				if (!(/^1(3|4|5|7|8)\d{9}$/.test(this.findPhone))) {
+					alert("手机号码有误，请重新输入");
+					return false;
+				}
+				// 发送验证码
+				if (this.countdownNew < 60 && this.countdownNew >= 1) {
+					return
+				}
+				let data = {
+					"phone": this.findPhone
+				}
+				this.$http.post(apiDomain + 'member/code', data).then(function(res) {
+					this.countDownNew()
+					console.log(res)
+					alert(res.body.msg)
+				}, function(res) {
+					// console.log(res.status);
+				});
+			},
+			// 下一步验证
+			nextTip(){
+				console.log('绑定手机')
+				if (!this.mobile) {
+					alert("请输入手机号");
+					return false;
+				}
+				if (!(/^1(3|4|5|7|8)\d{9}$/.test(this.mobile))) {
+					alert("手机号码有误，请重新输入");
+					return false;
+				}
+				if (!this.newCode) {
+					alert("请输入验证码");
+					return false;
+				}
+				this.isFindPass = false
+				this.isRetPass = true
+				
+			},
+			
+			//忘记密码重置 
+			resetPass() {
+				if (!this.newPass) {
+					alert("请输入密码");
+					return false;
+				}
+				let data = {
+					"uname": this.uname,
+					'phone': this.mobile,
+					'code':this.newCode,
+					
+					"pwd": this.newPass,
+					'reg_type': '1',
+					'os': 'h5',
+					
+					
+
+				}
+				this.$http.post(apiDomain + 'member/reset', data).then(function(res) {
+					// this.countDown()
+
+					alert(res.body.msg)
+					console.log(res.body)
+					// 注册成功后存储用户信息
+					// localStorage.setItem('userInfo',JSON.stringify(res.body.data))
+					// let uname = localStorage.getItem('uname')
+					// console.log(uname)
+				}, function(res) {
+					// console.log(res.status);
+				});
+			}
+		}
+	});
+</script>
+
+<style type="text/css" scoped>
+	/* 遮罩层  */
+	.maskInfo {
+		width: 100%;
+		height: 100%;
+		/* background: #000000; */
+		z-index: 888;
+		position: absolute;
+		top: 0;
+		left: 0;
+		background: rgba(0, 0, 0, 0.75);
+		/* opacity: 0.5; */
+	}
+
+	/*  */
+	.commonMask {
+		width: 80%;
+		height: 300px;
+		position: fixed;
+		left: 10%;
+		top: 50%;
+		transform: translateY(-150px);
+		z-index: 9999;
+		background: #fff;
+		border-radius: 10px;
+		font-size: 14px;
+		/* color: #fff; */
+
+	}
+
+	/* 关闭图标 */
+	.closeImg {
+		width: 15px;
+		height: 15px;
+		position: absolute;
+		right: 20px;
+		top: 15px;
+
+	}
+
+	input {
+		font-size: 14px;
+		color: #999;
+	}
+
+
+	/* 账号 */
+	.headerTite {
+		border-top-right-radius: 10px;
+		border-top-left-radius: 10px;
+		/* background: #007AFF;
+		 */
+		background: #00c2ff;
+		height: 50px;
+		line-height: 50px;
+		text-align: center;
+		color: #fff;
+	}
+
+
+	.userInfoMask {
+		text-align: center;
+	}
+
+
+
+	.userInfoMask p {
+		margin-top: 5px;
+	}
+
+	.userInfoMask .logoImg,
+	.userInfoMask .accountImg {
+		width: 60px;
+		height: 60px;
+		margin-top: 20px;
+	}
+
+
+	.bottomContentWay {
+		display: flex;
+		margin-top: 40px;
+	}
+
+	.bottomContentWay div {
+		flex: 1;
+		text-align: center;
+	}
+
+	.accountInfo .bottomContent {
+		width: 100%;
+		margin-top: 20px;
+	}
+
+	.accountInfo .bottomContent .bottomContentItem {
+		display: flex;
+		justify-content: space-between;
+		text-indent: 20px;
+		padding: 10px 20px;
+		margin-bottom: 20px;
+		align-items: center;
+
+	}
+
+	.accountInfo .bottomContent img {
+		width: 15px;
+		height: 15px;
+	}
+
+	.accountInfo .bottomContentItemSmall .phoneImg {
+		width: 15px;
+		height: 25px;
+	}
+
+	.accountInfo .bottomContentItemSmall .idcardImg {
+		width: 25px;
+		height: 20px;
+	}
+
+	.bindText {
+		text-indent: 30px;
+	}
+
+	.accountInfo .bottomContentItemSmall {
+		display: flex;
+		align-items: center;
+	}
+
+
+	/* 绑定手机号 */
+	.pboneInfo .view-group {
+		padding: 20px;
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		justify-content: center;
+
+	}
+
+	.pboneInfo .view-group input {
+
+		height: 40px;
+		border: 1px solid #eee;
+		border-radius: 6px;
+		text-indent: 10px;
+	}
+
+	.pboneInfo .view-group:nth-of-type(1) input {
+		width: 100%;
+	}
+
+	.pboneInfo .groupItem {
+
+		flex: 1;
+	}
+
+	.pboneInfo .view-group:nth-of-type(2) .groupItem {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+	}
+
+	.pboneInfo .view-group:nth-of-type(2) .getcodeAll {
+		width: 40%;
+		height: 40px;
+		background: #00c2ff;
+		color: #FFFFFF;
+		text-align: center;
+		line-height: 40px;
+		border-radius: 20px;
+		font-size: 12px;
+
+	}
+
+	.pboneInfo .view-group img {
+		width: flex 0 0 25px;
+		height: 25px;
+		margin-right: 10px;
+	}
+
+
+
+	.codeInput {
+		width: 50%;
+	}
+
+	.bindPhone {
+		height: 50px;
+		line-height: 50px;
+		text-align: center;
+		border-radius: 25px;
+		background: #00c2ff;
+		color: #fff;
+		width: 80%;
+		margin-left: 10%;
+		margin-top: 10px;
+	}
+
+	.register {
+		text-align: right;
+		padding-right: 10px;
+		padding-bottom: 10px;
+	}
+
+	/* 注册 */
+	.resigetInfo .view-group {
+		padding: 20px;
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		/* justify-content: center; */
+
+	}
+
+	.resigetInfo .view-group input {
+		/* width: 100%; */
+		height: 40px;
+		border: 1px solid #eee;
+		border-radius: 6px;
+		text-indent: 10px;
+		flex: 1;
+	}
+
+
+
+
+	.resigetInfo .imageWrap {
+		flex: 0 0 25px;
+		text-align: right;
+		margin-right: 10px;
+	}
+
+	.resigetInfo .view-group img {
+
+		height: 25px;
+		/* margin-right: 10px; */
+	}
+</style>

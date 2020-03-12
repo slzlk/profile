@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8" />
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<title>攻略详情</title>
+		<script src="../js/vue.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../js/common.js" type="text/javascript" charset="utf-8"></script>
+		<link rel="stylesheet" type="text/css" href="../css/main.css"/>
+	
+		<script src="https://cdn.staticfile.org/vue-resource/1.5.1/vue-resource.min.js"></script>
+		<script src="http://g.tbcdn.cn/mtb/lib-flexible/0.3.2/??flexible_css.js,flexible.js"></script>
+		
+	</head>
+	<body>
+		<div id="app">
+			<div class="fixedTop" @click="returnPage()">
+				<img :src="leftImg" class="leftArrow">
+				<span class="ellipsis-1">{{newsDetail.title.slice(0,20)}}</span>
+			</div>
+			<div class="title font18 black" style="margin-top: 44px;">
+				{{newsDetail.title}}
+			</div>
+			<div class="font13 margin-t-05">
+				<span class="mainColor">{{newsDetail.info}}</span>
+				<span class="margin-l-05">{{newsDetail.created.slice(0,10)}}</span>
+			</div>
+			<div class="mainContent">
+				<div class="mainItem" >
+					<div class="title" v-html="newsDetail.detail">
+						<!-- {{newsDetail.detail}} -->
+					</div>
+					<div class="goodsWrap">
+						<img :src="newsDetail.image" >
+					</div>
+				</div>
+			</div>
+		</div>
+	</body>
+</html>
+<script type="text/javascript">
+		 var vm = new Vue({
+		 	el: '#app',
+		 	data: {
+				id:'',
+				newsDetail:'',
+				leftImg: '../img/left.png'
+		 	},
+			created() {
+				this.id = getQueryString('id')
+			},
+			mounted() {
+				this.getNewsInfo()
+			},
+		 	methods: {
+				returnPage(){
+					window.history.go(-1)
+				},
+				// 获取商品详情get
+				getNewsInfo() {
+					this.$http.get(apiDomain + 'news/'+this.id+'').then(function(res) {
+						console.log(res);
+						this.newsDetail = res.body.result
+					}, function(res) {
+						console.log(res);
+						console.log('请求失败处理');
+					});
+				}
+		 	}
+		 });
+	</script>
+
+<style type="text/css" scoped>
+#app{
+	padding: 15px 10px 20px 10px;
+}
+.fixedTop{
+		position: fixed;
+		top: 0;
+		left: 0;
+		width: 100%;
+		/* height:44px ; */
+		justify-content: center;
+		background: #fff;
+		display: flex;
+		align-items: center;
+		padding:12px 10px ;
+		border-bottom: 1px solid #F4F4F4;
+		z-index: 999;
+		
+	}
+	.fixedTop img{
+		width: 18px;
+		height:18px;
+		display: block;
+	}
+	
+	.leftArrow{
+		position: absolute;
+		left: 10px;
+	}
+
+/* 详情 */
+.mainContent{
+	margin-top:14px ;
+	font-size: 15px;
+	color: #333;
+
+}
+.mainItem{
+	margin-top: 13px;
+}
+.mainItem .title{
+	margin-top: 44px;
+	padding: 0 29px;
+	font-size: 15px !important;
+	color: #333 !important;
+}
+.goodsWrap{
+	width: 100%;
+	margin-top: 15px;
+	display: flex;
+	justify-content: flex-end;
+	
+}
+.mainItem img{
+	width:78%;
+	height:275px;
+	margin-right: 29px;
+}
+</style>

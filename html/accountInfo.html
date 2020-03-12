@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8" />
+		<!-- application/json -->
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+		<meta http-equiv="Access-Control-Allow-Origin"  content="*">
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<title>流连互娱</title>
+		<script src="../js/vue.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../js/common.js" type="text/javascript" charset="utf-8"></script>
+		<link rel="stylesheet" type="text/css" href="../css/main.css" />
+		<script src="https://cdn.staticfile.org/vue-resource/1.5.1/vue-resource.min.js"></script>
+		<script src="http://g.tbcdn.cn/mtb/lib-flexible/0.3.2/??flexible_css.js,flexible.js"></script>
+		<script src="../js/gameSDK.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../js/md5.js" type="text/javascript" charset="utf-8"></script>
+	</head>
+	<body>
+		<div id="app">
+			<iframe scrolling="no" frameborder="0" :src="url"  width="100%" height="700"></iframe>
+			<img :src="expandImg" class="expandImg" @click="isShow = true" v-if="!isShow && !isShowInfo && !isBindPhone && !isReconise">
+			<!--  遮层-->
+			<div class="maskInfo" v-if="isShow || isShowInfo || isBindPhone || isReconise"> </div>
+			<!-- 账号 -->
+			<div class="userInfoMask commonMask" v-if="isShow">
+				<div class="topContent">
+					<img :src="logoImg" class="logoImg">
+					<p>账号:{{userInfo.uname}}</p>
+					<p>用户ID:{{userInfo.uid}}</p>
+					<img :src="closeImg" class="closeImg" @click="isShow = false">
+				</div>
+				<div class="bottomContent ">
+				
+					
+					<div id="" @click="isShowInfo = true,isShow = false">
+						<img :src="accountImg" class="accountImg">
+						<p>账号</p>
+					</div>
+					<p class="version">当前版本：2.0.1</p>
+				</div>
+			</div>
+
+
+			<!-- 选择手机绑定或者实名认证 -->
+			<div class="accountInfo commonMask" v-if="isShowInfo">
+				<div class="headerTite">
+					<span>账号</span>
+					<img :src="closeImg" class="closeImg" @click="isShowInfo = false" />
+				</div>
+				<div class="bottomContent ">
+					<div class="bottomContentItem" @click="isShowInfo = false,isBindPhone = true">
+						<div class="bottomContentItemSmall">
+							<!-- <div class="itemSmall"> -->
+							<img :src="phoneImg" class="phoneImg">
+							<!-- </div> -->
+							<p class="bindText">绑定手机</p>
+						</div>
+						<img :src="arrowImg">
+					</div>
+					<div class="bottomContentItem" @click="isShowInfo = false,isReconise = true">
+						<div class="bottomContentItemSmall">
+							<!-- <div class="itemSmall"> -->
+							<img :src="idcardImg" class="idcardImg">
+							<!-- </div> -->
+							<p>实名验证</p>
+						</div>
+						<img :src="arrowImg">
+					</div>
+				</div>
+			</div>
+
+			<!-- 绑定手机号 -->
+			<div class="pboneInfo commonMask" v-if="isBindPhone">
+				<div class="headerTite">
+					<span>绑定手机</span>
+					<img :src="closeImg" class="closeImg" @click="isBindPhone = false" />
+				</div>
+				<div class="bottomContent ">
+					<div class="view-group">
+						<image :src="phoneImg" mode="" />
+						<div class="phoneInput groupItem">
+							<input onkeyup="this.value=this.value.replace(/\D/g,'')" onafterpaste="this.value=this.value.replace(/\D/g,'')"
+							 placeholder-style="color:#999" type="text" maxlength="11" name="mobile" v-model="mobile" placeholder="请输入手机号码" />
+						</div>
+					</div>
+					<div class="view-group">
+						<image :src="codeImg" mode="" />
+						<div class="groupItem">
+							<input class="codeInput" maxlength="6" placeholder-style="color:#999" type="text" name="code" v-model="code"
+							 placeholder="请输入验证码" />
+							<div class="getcodeAll selectColor" @click="getCode" :disabled="countdown < 60 && countdown >= 1">
+								{{ countdown < 60 && countdown >= 1 ? `${countdown}秒后可重发` : '获取验证码' }}
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="bindPhone" @click="bindUserPhone()">立即绑定手机</div>
+			</div>
+
+			<!-- 实名认证 -->
+
+			<div class="reconiseInfo commonMask" v-if="isReconise">
+				<div class="headerTite">
+					<span>实名认证</span>
+					<img :src="closeImg" class="closeImg" @click="isReconise = false" />
+				</div>
+				<div class="bottomContent ">
+					<p class="font10">根据《网络游戏管理办法暂行办法》规定,游戏用户需要进行实名认证。请在下方输入对应信息进行认证</p>
+					<div class="view-group">
+						<div class="labelNamt">姓名</div>
+						<input placeholder-style="color:#999" type="text" maxlength="10" name="truename" v-model="truename" placeholder="请输入真实姓名" />
+					</div>
+					<div class="view-group">
+						<div class="labelNamt">身份证</div>
+						<input placeholder-style="color:#999" type="text" name="idcard" v-model="idcard" placeholder="请填写真实有效的身份信息" />
+					</div>
+				</div>
+				<div class="bindPhone" @click="setFcmInfo()">完成认证</div>
+			</div>
+
+		</div>
+	</body>
+</html>
+<script >
+	window.addEventListener('message', function (e) {
+		console.log('----------------------------------------')
+		console.log(e.data)
+	})
+</script>
+<script type="text/javascript">
+	var vm = new Vue({
+		el: '#app',
+		data: {
+			url:'',
+			time:'',
+			userInfo:'',
+			isShow: false,
+			isShowInfo: false,
+			isBindPhone: false,
+			isReconise: false,
+			mobile: '', // 手机号
+			code: '', // 验证码
+			truename: '', // 用户名
+			idcard: '', // 身份证号
+			countdown: 60,
+			phoneImg: '../img/phone.png', // 手机号
+			codeImg: '../img/code.png', // 验证码
+			closeImg: '../img/close.png', // 关闭
+			idcardImg: '../img/idcard.png', // 实名认证
+			arrowImg: '../img/arrow.png', // 箭头
+			logoImg: '../img/logo.png', // logo
+			accountImg: '../img/account.png', // 账户
+			expandImg: '../img/expand.png' // 账户
+		
+		},
+		created() {
+		this.userInfo = localStorage.getItem('userInfo') ? JSON.parse(localStorage.getItem('userInfo')) : ''
+		console.log(this.userInfo.uid)
+		
+		},
+		mounted() {
+			let sign = hex_md5(this.userInfo.uid+this.userInfo.agentId+this.userInfo.adid+this.time)
+		this.url = "http://120.79.196.52:8180/game/login?uid="+this.userInfo.uid+"&uname="+this.userInfo.uname+"&appid=11&time="+this.time+"&sign="+sign
+		},
+
+		methods: {
+
+			// 倒计时
+			countDown() {
+				if (this.countdown < 60 && this.countdown >= 1) {
+					return;
+				}
+
+				let self = this;
+				self.countdown = 60;
+				self.countdown -= 1;
+				if (self.clear) {
+					clearInterval(self.clear);
+				}
+				self.clear = null;
+				self.clear = setInterval(_ => {
+					if (self.countdown > 0) {
+						self.countdown -= 1;
+					} else {
+						clearInterval(self.clear);
+					}
+				}, 1000);
+			},
+			// 获取验证码
+			getCode() {
+				if (!this.mobile) {
+					alert("请输入手机号");
+					return false;
+				}
+				if (!(/^1(3|4|5|7|8)\d{9}$/.test(this.mobile))) {
+					alert("手机号码有误，请重新输入");
+					return false;
+				}
+				// 发送验证码
+				if (this.countdown < 60 && this.countdown >= 1) {
+					return
+				}
+				let data = {
+					"phone": this.mobile
+				}
+				this.$http.post(apiDomain + 'member/code', data).then(function(res) {
+					this.countDown()
+				}, function(res) {
+					// console.log(res.status);
+				});
+			},
+			// 绑定手机
+			bindUserPhone() {
+				console.log('绑定手机')
+				if (!this.mobile) {
+					alert("请输入手机号");
+					return false;
+				}
+				if (!(/^1(3|4|5|7|8)\d{9}$/.test(this.mobile))) {
+					alert("手机号码有误，请重新输入");
+					return false;
+				}
+				if (!this.code) {
+					alert("请输入验证码");
+					return false;
+				}
+				let data = {
+					"phone": this.mobile,
+					"code": this.code,
+					'reg_type':'1',
+					'os':'h5',
+					'uid':this.userInfo.uid
+				}
+				this.$http.post(apiDomain + 'member/bind_phone_code', data).then(function(res) {
+					// this.countDown()
+					alert(res.body.msg)
+				}, function(res) {
+					// console.log(res.status);
+				});
+			},
+			// 实名验证 
+			setFcmInfo() {
+				if (!this.truename) {
+					alert("请输入真实姓名");
+					return false;
+				}
+				if (!this.idcard) {
+					alert("请输入身份证号码");
+					return false;
+				}
+				if (!(/^[1-9]{1}[0-9]{14}$|^[1-9]{1}[0-9]{16}([0-9]|[xX])$/.test(this.idcard))) {
+					alert("身份证号有误，请重新输入");
+					return false;
+				}
+				let data = {
+					"truename": this.truename,
+					"idcard": this.idcard,
+					'os':'h5',
+					'uid':this.userInfo.uid
+				}
+				this.$http.post(apiDomain + 'member/setFcm', data).then(function(res) {}, function(res) {
+					alert(res.body.msg)
+					// this.isReconise = false
+				});
+			}
+
+		}
+	});
+</script>
+
+<style type="text/css" scoped>
+	#app {
+		width: 100%;
+		height: 100vh;
+		/* background: url(../img/voteBg.png) no-repeat 100% 100%;
+		background-size: 100%; */
+		position: relative;
+
+	}
+
+	/* 左侧悬浮 */
+	.expandImg {
+		width: 20px;
+		height: 20px;
+		position: fixed;
+		top: 200px;
+		left: 0;
+	}
+
+	/* 遮罩层  */
+	.maskInfo {
+		width: 100%;
+		height: 100%;
+		/* background: #000000; */
+		z-index: 888;
+		position: absolute;
+		top: 0;
+		left: 0;
+		background: rgba(0, 0, 0, 0.75);
+		/* opacity: 0.5; */
+	}
+
+	/*  */
+	.commonMask {
+		width: 80%;
+		height: 300px;
+		position: fixed;
+		left: 10%;
+		top: 50%;
+		transform: translateY(-150px);
+		z-index: 9999;
+		background: #fff;
+		border-radius: 10px;
+		font-size: 14px;
+		color: #fff;
+
+	}
+
+	/* 关闭图标 */
+	.closeImg {
+		width: 15px;
+		height: 15px;
+		position: absolute;
+		right: 20px;
+		top: 15px;
+
+	}
+
+	input {
+		font-size: 14px;
+		color: #999;
+	}
+
+	/*  */
+	/* 账号 */
+	.headerTite {
+		border-top-right-radius: 10px;
+		border-top-left-radius: 10px;
+		/* background: #007AFF;
+		 */
+		background: #00c2ff;
+		height: 50px;
+		line-height: 50px;
+		text-align: center;
+	}
+
+
+	.userInfoMask {
+		text-align: center;
+	}
+
+	.userInfoMask .topContent {
+		border-top-right-radius: 10px;
+		border-top-left-radius: 10px;
+		background: #00c2ff;
+		height: 150px;
+	}
+
+	.userInfoMask p {
+		margin-top: 5px;
+	}
+
+	.userInfoMask .logoImg,
+	.userInfoMask .accountImg {
+		width: 60px;
+		height: 60px;
+		margin-top: 20px;
+	}
+
+	.bottomContent {
+		color: #333;
+	}
+
+	.userInfoMask .version {
+		margin-top: 10px;
+	}
+
+
+	.accountInfo .bottomContent {
+		width: 100%;
+		margin-top: 20px;
+	}
+
+	.accountInfo .bottomContent .bottomContentItem {
+		display: flex;
+		justify-content: space-between;
+		text-indent: 20px;
+		padding: 10px 20px;
+		margin-bottom: 20px;
+		align-items: center;
+
+	}
+
+	.accountInfo .bottomContent img {
+		width: 15px;
+		height: 15px;
+	}
+
+	.accountInfo .bottomContentItemSmall .phoneImg {
+		width: 15px;
+		height: 25px;
+	}
+
+	.accountInfo .bottomContentItemSmall .idcardImg {
+		width: 25px;
+		height: 20px;
+	}
+
+	.bindText {
+		text-indent: 30px;
+	}
+
+	.accountInfo .bottomContentItemSmall {
+		display: flex;
+		align-items: center;
+	}
+
+
+	/* 绑定手机号 */
+	.pboneInfo .view-group {
+		padding: 20px;
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+
+	}
+
+	.pboneInfo .view-group input {
+
+		height: 40px;
+		border: 1px solid #eee;
+		border-radius: 6px;
+		text-indent: 10px;
+	}
+
+	.pboneInfo .view-group:nth-of-type(1) input {
+		width: 100%;
+	}
+
+	.pboneInfo .groupItem {
+
+		flex: 1;
+	}
+
+	.pboneInfo .view-group:nth-of-type(2) .groupItem {
+		display: flex;
+		justify-content: space-between;
+	}
+
+	.pboneInfo .view-group:nth-of-type(2) .getcodeAll {
+		width: 40%;
+		height: 40px;
+		background: #00c2ff;
+		color: #FFFFFF;
+		text-align: center;
+		line-height: 40px;
+		border-radius: 20px;
+		font-size: 12px;
+
+	}
+
+	.pboneInfo .view-group img {
+		width: flex 0 0 25px;
+		height: 25px;
+		margin-right: 10px;
+	}
+
+
+
+	.codeInput {
+		width: 50%;
+	}
+
+	.bindPhone {
+		height: 50px;
+		line-height: 50px;
+		text-align: center;
+		border-radius: 25px;
+		background: #00c2ff;
+		color: #fff;
+		width: 80%;
+		margin-left: 10%;
+		margin-top: 10px;
+	}
+
+
+	/* 实名认证 */
+
+	.reconiseInfo .bottomContent {
+		padding: 10px 20px;
+	}
+
+	.reconiseInfo .bottomContent .view-group {
+		width: 98%;
+		height: 40px;
+		line-height: 40px;
+		background: #eee;
+		border-radius: 6px;
+		/* text-indent: 5px;
+		 */
+		padding: 0 5px;
+		margin-top: 10px;
+		display: flex;
+
+	}
+
+	.reconiseInfo .bottomContent .view-group .labelNamt {
+		font-weight: bold;
+		flex: 0 0 45px;
+	}
+
+	.reconiseInfo .bottomContent .view-group input {
+		height: 40px;
+		line-height: 40px;
+		border: none;
+		outline: none;
+		background: #eee;
+		flex: 1;
+	}
+</style>
